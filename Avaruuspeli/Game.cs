@@ -7,9 +7,13 @@ namespace Avaruuspeli
     {
         int window_width = 960;
         int window_height = 720;
-        Player player;
+
         Background bg;
+
+        Player player;
         List<Bullet> bullets;
+
+        Enemy enemy;
 
         float shootDelay = 0.5f;
         double nextShoot = 0;
@@ -30,6 +34,8 @@ namespace Avaruuspeli
             bg = new Background(window_width, window_height, 0.1f, 5);
 
             bullets = new List<Bullet>();
+
+            enemy = new Enemy(new Vector2(window_width / 2, 80), new Vector2(1,0), 200, 40);
         }
 
         private void GameLoop()
@@ -39,6 +45,7 @@ namespace Avaruuspeli
                 Draw();
                 Update();
                 KeepInBounds(player.transform, player.collision, 0, 0, window_width, window_height);
+                
             }
         }
 
@@ -54,6 +61,8 @@ namespace Avaruuspeli
             {
                 bullet.Draw();
             }
+
+            enemy.Draw();
 
             Raylib.EndDrawing();
         }
@@ -73,25 +82,43 @@ namespace Avaruuspeli
             }
 
 
-            foreach (Bullet bullet in bullets)
-            {
-                bullet.Update();
-            }
+            //foreach (Bullet bullet in bullets)
+            //{
+            //    
+            //}
 
             for (int i = 0; i < bullets.Count; i++)
             {
+                bullets[i].Update();
                 if (bullets[i].transform.position.Y < 0 - bullets[i].collision.size.Y)
                 {
                     bullets.RemoveAt(i);
                 }
             }
+
+            enemy.Update();
+            if (KeepInBounds(enemy.transform, enemy.collision, 0, 0, window_width, window_height))
+            {
+                enemy.transform.direction.X *= -1;
+            }
+
             bg.Update();
         }
 
-        void KeepInBounds(TransformComponent transform, CollisionComponent collision, int left, int top, int right, int bottom)
+        bool KeepInBounds(TransformComponent transform, CollisionComponent collision, int left, int top, int right, int bottom)
         {
-            transform.position.X = Math.Clamp(transform.position.X, left, right - collision.size.X);
-            transform.position.Y = Math.Clamp(transform.position.Y, top, bottom - collision.size.Y);
+            float newX = Math.Clamp(transform.position.X, left, right - collision.size.X);
+            float newY = Math.Clamp(transform.position.Y, top, bottom - collision.size.Y);
+
+            bool xChange = newX != transform.position.X;
+            bool yChange = newY != transform.position.Y;
+
+            transform.position.X = newX;
+            transform.position.Y = newY;
+
+            return xChange || yChange;
+
+
         }
     }
 }

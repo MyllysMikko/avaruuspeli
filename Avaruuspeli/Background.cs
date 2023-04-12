@@ -32,11 +32,10 @@ namespace Avaruuspeli
 
         public void Update()
         {
-            Console.WriteLine(starlist.Count);
             if (Raylib.GetTime() > nextSpawn)
             {
                 Random rand = new Random();
-                Vector2 startPos = new Vector2(rand.Next(0, Window_width), 0 - size);
+                Vector2 startPos = new Vector2(rand.Next(0, Window_width - size), 0 - size);
                 nextSpawn = Raylib.GetTime() + spawnDelay;
                 Star star = new Star(startPos, new Vector2(0, 1), 200, new Vector2(size, size));
                 starlist.Add(star);
