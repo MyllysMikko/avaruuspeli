@@ -8,7 +8,8 @@ namespace Avaruuspeli
         public TransformComponent transform { get; private set; }
         public CollisionComponent collision { get; private set; }
 
-        
+        float shootDelay = 0.5f;
+        double nextShoot = 0;
 
 
 
@@ -35,8 +36,10 @@ namespace Avaruuspeli
                 transform.position.X += transform.speed * Raylib.GetFrameTime();
             }
 
-            if (Raylib.IsKeyDown(KeyboardKey.KEY_SPACE))
+            if (Raylib.IsKeyDown(KeyboardKey.KEY_SPACE) && Raylib.GetTime() > nextShoot)
             {
+                nextShoot = Raylib.GetTime() + shootDelay;
+
                 return true;
             }
 

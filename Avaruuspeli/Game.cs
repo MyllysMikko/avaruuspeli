@@ -15,8 +15,7 @@ namespace Avaruuspeli
 
         Enemy enemy;
 
-        float shootDelay = 0.5f;
-        double nextShoot = 0;
+
 
         public void Run()
         {
@@ -70,7 +69,7 @@ namespace Avaruuspeli
         void Update()
         {
 
-            if (player.Update() && Raylib.GetTime() > nextShoot)
+            if (player.Update())
             {
                 //Vector2 spawnPos = player.transform.position + new Vector2(player.collision.size.X / 2, 5);
                 Bullet bullet = new Bullet(player.transform.position, new Vector2(0, -1), 300, 20);
@@ -78,7 +77,6 @@ namespace Avaruuspeli
                 bullet.transform.position.X = (player.transform.position.X + player.collision.size.X / 2) - bullet.collision.size.X / 2;
                 bullet.transform.position.Y -= bullet.collision.size.Y;
                 bullets.Add(bullet);
-                nextShoot = Raylib.GetTime() + shootDelay;
             }
 
 
