@@ -8,23 +8,31 @@ namespace Avaruuspeli
         public TransformComponent transform;
         public CollisionComponent collision;
 
+        public bool active;
+
         public Enemy(Vector2 startPos, Vector2 direction, float speed, int size)
         {
             transform = new TransformComponent(startPos, direction, speed);
             collision = new CollisionComponent(new Vector2(size, size));
+            active = true;
         }
 
         public void Update()
         {
-
-            transform.position += transform.direction * transform.speed * Raylib.GetFrameTime();
+            if (active)
+            {
+                transform.position += transform.direction * transform.speed * Raylib.GetFrameTime();
+            }
 
 
         }
 
         public void Draw()
         {
-            Raylib.DrawRectangleV(transform.position, collision.size, Raylib.GREEN);
+            if (active)
+            {
+                Raylib.DrawRectangleV(transform.position, collision.size, Raylib.GREEN);
+            }
         }
     }
 }

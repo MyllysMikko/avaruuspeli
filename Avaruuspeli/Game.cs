@@ -13,7 +13,7 @@ namespace Avaruuspeli
         Player player;
         List<Bullet> bullets;
 
-        Enemy enemy;
+        List<Enemy> enemies;
 
 
 
@@ -34,7 +34,10 @@ namespace Avaruuspeli
 
             bullets = new List<Bullet>();
 
-            enemy = new Enemy(new Vector2(window_width / 2, 80), new Vector2(1,0), 200, 40);
+            enemies = new List<Enemy>();
+
+            enemies.Add(new Enemy(new Vector2(window_width / 2, 80), new Vector2(1, 0), 200, 40));
+
         }
 
         private void GameLoop()
@@ -61,7 +64,10 @@ namespace Avaruuspeli
                 bullet.Draw();
             }
 
-            enemy.Draw();
+            foreach (Enemy enemy in enemies)
+            { 
+                enemy.Draw();
+            }
 
             Raylib.EndDrawing();
         }
@@ -71,39 +77,73 @@ namespace Avaruuspeli
 
             if (player.Update())
             {
-                //Vector2 spawnPos = player.transform.position + new Vector2(player.collision.size.X / 2, 5);
-                Bullet bullet = new Bullet(player.transform.position, new Vector2(0, -1), 300, 20);
-                //bullet.transform.position.X += bullet.collision.size.X / 2;
-                bullet.transform.position.X = (player.transform.position.X + player.collision.size.X / 2) - bullet.collision.size.X / 2;
-                bullet.transform.position.Y -= bullet.collision.size.Y;
-                bullets.Add(bullet);
+                ShootBullet(player.transform.position, new Vector2(0, -1), 300, 20);
             }
 
 
-            //foreach (Bullet bullet in bullets)
-            //{
-            //    
-            //}
-
-            for (int i = 0; i < bullets.Count; i++)
+            foreach (Bullet bullet in bullets)
             {
-                bullets[i].Update();
-                if (bullets[i].transform.position.Y < 0 - bullets[i].collision.size.Y)
+                bullet.Update();
+
+                if (KeepInBounds(bullet.transform, bullet.collision, 0, -bullet.collision.size.Y, window_width, window_height))
                 {
-                    bullets.RemoveAt(i);
+                    bullet.active = false;
                 }
+
+
+
+                Rectangle bulletRec = GetRectangle(bullet.transform, bullet.collision);
+
+                foreach (Enemy enemy in enemies)
+                {
+                    Rectangle enemyRec = GetRectangle(enemy.transform, enemy.collision);
+                    if (Raylib.CheckCollisionRecs(bulletRec, enemyRec))
+                    {
+                        if (enemy.active)
+                        {
+                            Console.WriteLine("Enemy hit");
+                            enemy.active = false;
+                        }
+                    }
+                }
+
+
             }
 
-            enemy.Update();
-            if (KeepInBounds(enemy.transform, enemy.collision, 0, 0, window_width, window_height))
+            foreach (Enemy enemy in enemies)
             {
-                enemy.transform.direction.X *= -1;
+                enemy.Update();
+                if (KeepInBounds(enemy.transform, enemy.collision, 0, 0, window_width, window_height))
+                {
+                    enemy.transform.direction.X *= -1;
+                }
             }
 
             bg.Update();
         }
 
-        bool KeepInBounds(TransformComponent transform, CollisionComponent collision, int left, int top, int right, int bottom)
+        void ShootBullet(Vector2 pos, Vector2 dir, float speed, int size)
+        {
+
+            foreach (Bullet bullet in bullets)
+            {
+                if (bullet.active == false)
+                {
+                    bullet.Reset(pos, dir, speed, size);
+                    ResetBulletPos(bullet, player);
+                    return;
+                }
+            }
+
+            Bullet newBullet = new Bullet(player.transform.position, new Vector2(0, -1), 300, 20);
+            ResetBulletPos(newBullet, player);
+            bullets.Add(newBullet);
+            Console.WriteLine($"Bullet count: {bullets.Count}");
+
+
+        }
+
+        bool KeepInBounds(TransformComponent transform, CollisionComponent collision, float left, float top, float right, float bottom)
         {
             float newX = Math.Clamp(transform.position.X, left, right - collision.size.X);
             float newY = Math.Clamp(transform.position.Y, top, bottom - collision.size.Y);
@@ -117,6 +157,19 @@ namespace Avaruuspeli
             return xChange || yChange;
 
 
+        }
+
+        void ResetBulletPos(Bullet bullet, Player player)
+        {
+            bullet.transform.position.X = (player.transform.position.X + player.collision.size.X / 2) - bullet.collision.size.X / 2;
+            bullet.transform.position.Y -= bullet.collision.size.Y;
+        }
+
+        Rectangle GetRectangle(TransformComponent transform, CollisionComponent collision)
+        {
+            Rectangle rec = new Rectangle(transform.position.X, transform.position.Y, collision.size.X, collision.size.Y);
+
+            return rec;
         }
     }
 }

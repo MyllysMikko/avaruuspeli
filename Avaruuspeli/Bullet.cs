@@ -2,6 +2,7 @@
 
 using Raylib_CsLo;
 using System.Numerics;
+using System.Transactions;
 
 namespace Avaruuspeli
 {
@@ -10,20 +11,39 @@ namespace Avaruuspeli
         public TransformComponent transform { get; private set; }
         public CollisionComponent collision { get; private set; }
 
+        public bool active;
+
         public Bullet(Vector2 startPosition, Vector2 direction, float speed, int size)
         {
             transform = new TransformComponent(startPosition, direction, speed);
             collision = new CollisionComponent(new Vector2(size, size));
+
+            active = true;
         }
 
         public void Update()
         {
-            transform.position += transform.direction * transform.speed * Raylib.GetFrameTime();
+            if (active)
+            {
+                transform.position += transform.direction * transform.speed * Raylib.GetFrameTime();
+            }
         }
 
         public void Draw()
         {
-            Raylib.DrawRectangleV(transform.position, collision.size, Raylib.RED);
+            if (active)
+            {
+                Raylib.DrawRectangleV(transform.position, collision.size, Raylib.RED);
+            }
         }
+
+        public void Reset(Vector2 pos, Vector2 dir, float speed, int size)
+        {
+            transform = new TransformComponent(pos, dir, speed);
+            collision = new CollisionComponent(new Vector2(size, size));
+
+            active = true;
+        }
+
     }
 }
