@@ -34,25 +34,39 @@ namespace Avaruuspeli
         {
             if (Raylib.GetTime() > nextSpawn)
             {
-                Random rand = new Random();
-                Vector2 startPos = new Vector2(rand.Next(0, Window_width - size), 0 - size);
-                nextSpawn = Raylib.GetTime() + spawnDelay;
-                Star star = new Star(startPos, new Vector2(0, 1), 200, new Vector2(size, size));
-                starlist.Add(star);
+                SpawnStar();
             }
 
             foreach(Star star in starlist)
             {
                 star.Update();
-            }
-
-            for (int i = 0; i < starlist.Count; i++)
-            {
-                if (starlist[i].Transform.position.Y > Window_height)
+                if (star.Transform.position.Y > Window_height)
                 {
-                    starlist.Remove(starlist[i]);
+                    star.active = false;
                 }
             }
+
+        }
+
+        void SpawnStar()
+        {
+            nextSpawn = Raylib.GetTime() + spawnDelay;
+            Random rand = new Random();
+            Vector2 startPos = new Vector2(rand.Next(0, Window_width - size), 0 - size);
+            foreach (Star tähti in starlist)
+            {
+                if (!tähti.active)
+                {
+                    tähti.Transform.position = startPos;
+                    tähti.active = true;
+                    return;
+                }
+            }
+            
+            
+
+            Star star = new Star(startPos, new Vector2(0, 1), 200, new Vector2(size, size));
+            starlist.Add(star);
         }
 
         public void Draw()
@@ -68,20 +82,29 @@ namespace Avaruuspeli
         {
             public TransformComponent Transform { get; private set; }
             public CollisionComponent Collision { get ; private set; }
+
+            public bool active;
             public Star(Vector2 startPosition, Vector2 direction, float speed, Vector2 size)
             {
                 Transform = new TransformComponent(startPosition, direction, speed);
                 Collision = new CollisionComponent(size);
+                active = true;
             }
 
             public void Update()
             {
-                Transform.position += Transform.direction * Transform.speed * Raylib.GetFrameTime();
+                if (active)
+                {
+                    Transform.position += Transform.direction * Transform.speed * Raylib.GetFrameTime();
+                }
             }
 
             public void Draw()
             {
-                Raylib.DrawRectangleV(Transform.position, Collision.size, Raylib.WHITE);
+                if (active)
+                {
+                    Raylib.DrawRectangleV(Transform.position, Collision.size, Raylib.WHITE);
+                }
             }
         }
     }

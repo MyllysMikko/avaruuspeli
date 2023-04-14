@@ -8,7 +8,7 @@ namespace Avaruuspeli
         public TransformComponent transform { get; private set; }
         public CollisionComponent collision { get; private set; }
 
-        float shootDelay = 0.5f;
+        float shootDelay = 1f;
         double nextShoot = 0;
 
 
