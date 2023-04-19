@@ -10,11 +10,14 @@ namespace Avaruuspeli
 
         public bool active;
 
-        public Enemy(Vector2 startPos, Vector2 direction, float speed, int size)
+        public int scoreValue;
+
+        public Enemy(Vector2 startPos, Vector2 direction, float speed, int size, int scoreValue)
         {
             transform = new TransformComponent(startPos, direction, speed);
             collision = new CollisionComponent(new Vector2(size, size));
             active = true;
+            this.scoreValue = scoreValue;
         }
 
         public void Update()

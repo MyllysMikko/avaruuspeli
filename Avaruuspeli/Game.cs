@@ -5,10 +5,16 @@ namespace Avaruuspeli
 {
     class Game
     {
+        GameState state;
         int window_width = 960;
         int window_height = 720;
 
         int playerSize = 40;
+
+        int rows = 2;
+        int columns = 4;
+        int maxScore = 40;
+        int minScore = 10;
 
         Background bg;
 
@@ -16,6 +22,8 @@ namespace Avaruuspeli
         List<Bullet> bullets;
 
         List<Enemy> enemies;
+
+        int scoreCounter = 0;
 
 
 
@@ -27,6 +35,7 @@ namespace Avaruuspeli
 
         void Init()
         {
+            state = GameState.Play;
             Raylib.InitWindow(window_width, window_height, "Avaruuspeli");
 
             Vector2 playerStart = new Vector2(window_width / 2, window_height - 80);
@@ -40,8 +49,16 @@ namespace Avaruuspeli
 
 
             //TODO formaatio
-            int rows = 2;
-            int columns = 4;
+            
+
+            SpawnEnemies(rows, columns, maxScore, minScore);
+
+
+        }
+
+
+        void SpawnEnemies(int rows, int columns, int maxScore, int minScore)
+        {
             int startX = 0;
             int startY = 0;
             int currentX = startX;
@@ -51,31 +68,76 @@ namespace Avaruuspeli
             {
                 currentX = startX;
                 currentY += playerSize;
+                int enemyScore = maxScore - row * 10;
+                if (enemyScore < minScore)
+                {
+                    enemyScore = minScore;
+                }
                 for (int col = 0; col < columns; col++)
                 {
                     currentX += playerSize;
 
                     Vector2 enemyStart = new Vector2(currentX, currentY);
-                    enemies.Add(new Enemy(enemyStart, new Vector2(1, 0), 200, playerSize));
+                    enemies.Add(new Enemy(enemyStart, new Vector2(1, 0), 200, playerSize, enemyScore));
 
                     currentX += playerSize;
                 }
                 currentY += playerSize;
 
             }
-
-
         }
 
         private void GameLoop()
         {
             while (Raylib.WindowShouldClose() == false)
             {
-                Draw();
-                Update();
+                
+                switch(state)
+                {
+                    case GameState.Play:
+                        Draw();
+                        Update();
+                        break;
+
+                    case GameState.ScoreScreen:
+                        ScoreUpdate();
+                        ScoreDraw();
+                        break;
+                }
                 
                 
             }
+        }
+
+        private void ScoreUpdate()
+        {
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
+            {
+                scoreCounter = 0;
+                SpawnEnemies(rows, columns, maxScore, minScore);
+
+                //reset bullets
+                foreach (Bullet bullet in bullets)
+                {
+                    if (bullet.active)
+                    {
+                        bullet.active = false;
+                    }
+                }
+                Vector2 pos = new Vector2(window_width / 2, window_height - 80);
+
+                player.transform.position = pos;
+
+                state = GameState.Play;
+            }
+        }
+
+        private void ScoreDraw()
+        {
+            Raylib.BeginDrawing();
+            Raylib.ClearBackground(Raylib.BLACK);
+            Raylib.DrawText(scoreCounter.ToString(), window_width / 2, window_height / 2, 50, Raylib.SKYBLUE);
+            Raylib.EndDrawing();
         }
 
         private void Draw()
@@ -96,7 +158,24 @@ namespace Avaruuspeli
                 enemy.Draw();
             }
 
+            Raylib.DrawText(scoreCounter.ToString(),10, 10, 16, Raylib.SKYBLUE);
+
             Raylib.EndDrawing();
+        }
+
+        int CountActiveEnemies()
+        {
+            int active = 0;
+
+            foreach (Enemy enemy in enemies)
+            {
+                if (enemy.active)
+                {
+                    active++;
+                }
+            }
+
+            return active;
         }
 
         void Update()
@@ -180,7 +259,13 @@ namespace Avaruuspeli
                             {
                                 enemy.active = false;
                                 bullet.active = false;
-                                Console.WriteLine("Enemy hit");
+                                scoreCounter += enemy.scoreValue;
+                                Console.WriteLine(scoreCounter);
+
+                                if (CountActiveEnemies() == 0)
+                                {
+                                    state = GameState.ScoreScreen;
+                                }
                             }
                         }
                     }
@@ -236,6 +321,12 @@ namespace Avaruuspeli
             Rectangle rec = new Rectangle(transform.position.X, transform.position.Y, collision.size.X, collision.size.Y);
 
             return rec;
+        }
+
+        enum GameState
+        {
+            Play,
+            ScoreScreen
         }
     }
 }
