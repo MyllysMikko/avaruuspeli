@@ -11,8 +11,8 @@ namespace Avaruuspeli
 
         int playerSize = 40;
 
-        int rows = 2;
-        int columns = 4;
+        int rows = 3;
+        int columns = 5;
         int maxScore = 40;
         int minScore = 10;
 
@@ -22,6 +22,8 @@ namespace Avaruuspeli
         List<Bullet> bullets;
 
         List<Enemy> enemies;
+
+        Texture[] enemyImage = new Texture[2];
 
         int scoreCounter = 0;
 
@@ -47,6 +49,9 @@ namespace Avaruuspeli
             bullets = new List<Bullet>();
 
             enemies = new List<Enemy>();
+
+            enemyImage[0] = Raylib.LoadTexture("data/images/enemyBlack1.png");
+            enemyImage[1] = Raylib.LoadTexture("data/images/enemyBlack2.png");
 
 
 
@@ -100,9 +105,9 @@ namespace Avaruuspeli
 
                     if (!löytyi)
                     {
-                        Texture enemyImage = Raylib.LoadTexture("data/images/enemyBlack1.png");
+                        //Texture enemyImage = Raylib.LoadTexture("data/images/enemyBlack1.png");
 
-                        enemies.Add(new Enemy(enemyStart, new Vector2(1, 0), 200, playerSize, enemyScore, enemyImage));
+                        enemies.Add(new Enemy(enemyStart, new Vector2(1, 0), 200, playerSize, enemyScore, enemyImage[(row) % 2]));
                     }
 
                     currentX += playerSize;
@@ -131,6 +136,7 @@ namespace Avaruuspeli
                         ScoreUpdate();
                         ScoreDraw();
                         break;
+
                 }
                 
                 
@@ -231,6 +237,7 @@ namespace Avaruuspeli
                 ShootBullet(player.transform.position, new Vector2(0, -1), 500, 20);
             }
             KeepInBounds(player.transform, player.collision, 0, 0, window_width, window_height);
+
         }
 
         void UpdateEnemies()
@@ -314,7 +321,10 @@ namespace Avaruuspeli
                 }
             }
 
-            Bullet newBullet = new Bullet(player.transform.position, new Vector2(0, -1), speed, 20);
+            Texture bulletImage = Raylib.LoadTexture("data/images/laserBlue16.png");
+
+
+            Bullet newBullet = new Bullet(player.transform.position, new Vector2(0, -1), speed, 20, bulletImage);
             ResetBulletPos(newBullet, player);
             bullets.Add(newBullet);
             Console.WriteLine($"Bullet count: {bullets.Count}");
@@ -354,7 +364,8 @@ namespace Avaruuspeli
         enum GameState
         {
             Play,
-            ScoreScreen
+            ScoreScreen,
+            pause
         }
     }
 }

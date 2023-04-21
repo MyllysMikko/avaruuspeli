@@ -13,12 +13,15 @@ namespace Avaruuspeli
 
         public bool active;
 
-        public Bullet(Vector2 startPosition, Vector2 direction, float speed, int size)
+        public Texture bulletImage;
+
+        public Bullet(Vector2 startPosition, Vector2 direction, float speed, int size, Texture bulletImage)
         {
             transform = new TransformComponent(startPosition, direction, speed);
             collision = new CollisionComponent(new Vector2(size, size));
 
             active = true;
+            this.bulletImage = bulletImage;
         }
 
         public void Update()
@@ -33,7 +36,15 @@ namespace Avaruuspeli
         {
             if (active)
             {
-                Raylib.DrawRectangleV(transform.position, collision.size, Raylib.RED);
+                float scaleX = collision.size.X / bulletImage.width;
+                float scaleY = collision.size.Y / bulletImage.height;
+                float scale = Math.Min(scaleX, scaleY);
+
+                //Raylib.DrawTextureEx(bulletImage, transform.position, 0f, scale, Raylib.WHITE);
+                Rectangle bulletRec = new Rectangle(0, 0, 13, 54);
+                Vector2 imagePos = new Vector2((int)(transform.position.X + collision.size.X * 0.5f) - (int)(bulletImage.width * 0.5f), transform.position.Y);
+                Raylib.DrawTextureRec(bulletImage, bulletRec, imagePos, Raylib.WHITE);
+               //Raylib.DrawRectangleLines((int)transform.position.X, (int)transform.position.Y, (int)collision.size.X, (int)collision.size.Y, Raylib.SKYBLUE);
             }
         }
 

@@ -15,6 +15,12 @@
     <None Update="data\images\enemyBlack1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="data\images\enemyBlack2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="data\images\laserBlue16.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="data\images\playerShip1_orange.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
