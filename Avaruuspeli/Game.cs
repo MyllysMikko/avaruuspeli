@@ -49,21 +49,24 @@ namespace Avaruuspeli
             enemies = new List<Enemy>();
 
 
+
             //TODO formaatio
             
 
-            SpawnEnemies(rows, columns, maxScore, minScore);
+            SpawnEnemies();
 
 
         }
 
 
-        void SpawnEnemies(int rows, int columns, int maxScore, int minScore)
+        void SpawnEnemies()
         {
             int startX = 0;
             int startY = 0;
             int currentX = startX;
             int currentY = startY;
+
+            
 
             for (int row = 0; row < rows; row++)
             {
@@ -79,14 +82,38 @@ namespace Avaruuspeli
                     currentX += playerSize;
 
                     Vector2 enemyStart = new Vector2(currentX, currentY);
-                    enemies.Add(new Enemy(enemyStart, new Vector2(1, 0), 200, playerSize, enemyScore));
+
+                    bool löytyi = false;
+
+                    foreach (Enemy enemy in enemies )
+                    {
+                        if (!enemy.active)
+                        {
+                            enemy.transform.position = enemyStart;
+                            enemy.active = true;
+                            enemy.scoreValue = enemyScore;
+                            enemy.transform.direction = new Vector2(1, 0);
+                            löytyi = true;
+                            break;
+                        }
+                    }
+
+                    if (!löytyi)
+                    {
+                        Texture enemyImage = Raylib.LoadTexture("data/images/enemyBlack1.png");
+
+                        enemies.Add(new Enemy(enemyStart, new Vector2(1, 0), 200, playerSize, enemyScore, enemyImage));
+                    }
 
                     currentX += playerSize;
                 }
                 currentY += playerSize;
 
             }
+            Console.WriteLine(enemies.Count);
         }
+
+
 
         private void GameLoop()
         {
@@ -115,7 +142,7 @@ namespace Avaruuspeli
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
             {
                 scoreCounter = 0;
-                SpawnEnemies(rows, columns, maxScore, minScore);
+                SpawnEnemies();
 
                 //reset bullets
                 foreach (Bullet bullet in bullets)
@@ -201,7 +228,7 @@ namespace Avaruuspeli
         {
             if (player.Update())
             {
-                ShootBullet(player.transform.position, new Vector2(0, -1), 300, 20);
+                ShootBullet(player.transform.position, new Vector2(0, -1), 500, 20);
             }
             KeepInBounds(player.transform, player.collision, 0, 0, window_width, window_height);
         }
@@ -287,7 +314,7 @@ namespace Avaruuspeli
                 }
             }
 
-            Bullet newBullet = new Bullet(player.transform.position, new Vector2(0, -1), 300, 20);
+            Bullet newBullet = new Bullet(player.transform.position, new Vector2(0, -1), speed, 20);
             ResetBulletPos(newBullet, player);
             bullets.Add(newBullet);
             Console.WriteLine($"Bullet count: {bullets.Count}");

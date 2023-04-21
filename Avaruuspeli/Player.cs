@@ -24,14 +24,13 @@ namespace Avaruuspeli
 
         public void Draw()
         {
-            //Raylib.DrawTextureV(playerimage, transform.position, Raylib.WHITE);
 
             float scaleX = collision.size.X / playerImage.width;
             float scaleY = collision.size.Y / playerImage.height;
             float scale = Math.Min(scaleX, scaleY);
 
             Raylib.DrawTextureEx(playerImage, transform.position, 0f, scale, Raylib.WHITE);
-            Raylib.DrawRectangleLines((int)transform.position.X, (int)transform.position.Y, (int)collision.size.X, (int) collision.size.Y, Raylib.SKYBLUE);
+            //Raylib.DrawRectangleLines((int)transform.position.X, (int)transform.position.Y, (int)collision.size.X, (int) collision.size.Y, Raylib.SKYBLUE);
         }
 
         public bool Update()
