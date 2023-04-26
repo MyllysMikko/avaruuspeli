@@ -12,9 +12,10 @@ namespace Avaruuspeli
         int playerSize = 40;
 
         int rows = 3;
-        int columns = 5;
+        int columns = 9;
         int maxScore = 40;
         int minScore = 10;
+        int enemySpeed = 100;
 
         Background bg;
 
@@ -98,6 +99,7 @@ namespace Avaruuspeli
                             enemy.active = true;
                             enemy.scoreValue = enemyScore;
                             enemy.transform.direction = new Vector2(1, 0);
+                            enemy.transform.speed = enemySpeed;
                             löytyi = true;
                             break;
                         }
@@ -107,7 +109,7 @@ namespace Avaruuspeli
                     {
                         //Texture enemyImage = Raylib.LoadTexture("data/images/enemyBlack1.png");
 
-                        enemies.Add(new Enemy(enemyStart, new Vector2(1, 0), 200, playerSize, enemyScore, enemyImage[(row) % 2]));
+                        enemies.Add(new Enemy(enemyStart, new Vector2(1, 0), enemySpeed, playerSize, enemyScore, enemyImage[(row) % 2]));
                     }
 
                     currentX += playerSize;
@@ -256,7 +258,11 @@ namespace Avaruuspeli
             {
                 foreach (Enemy enemy in enemies)
                 {
+                    Vector2 moveDown = new Vector2(0, 10);
+
                     enemy.transform.direction.X *= -1;
+                    enemy.transform.position += moveDown;
+
                 }
             }
         }
