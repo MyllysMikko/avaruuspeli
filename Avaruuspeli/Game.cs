@@ -17,10 +17,14 @@ namespace Avaruuspeli
         int minScore = 10;
         int enemySpeed = 100;
 
+        float enemyShootDelay = 1;
+        double nextEnemyShoot = 0;
+
         Background bg;
 
         Player player;
         List<Bullet> bullets;
+        List<Bullet> enemyBullets;
 
         List<Enemy> enemies;
 
@@ -221,6 +225,7 @@ namespace Avaruuspeli
 
             UpdatePlayer();
             UpdateEnemies();
+            EnemyShoots();
             UpdateBullets();
             CheckCollisions();
 
@@ -266,6 +271,31 @@ namespace Avaruuspeli
                 }
             }
         }
+
+        void EnemyShoots()
+        {
+            Console.WriteLine($"Waiting to shoot. \nTime now{Raylib.GetFrameTime()}\nNext shot at {nextEnemyShoot}");
+            if (Raylib.GetTime() > nextEnemyShoot)
+            {
+                Console.WriteLine("Can shoot");
+                Random rand = new Random();
+
+                bool ammuttu = false;
+                while (!ammuttu)
+                {
+                    int enemyIndex = rand.Next(0, enemies.Count);
+
+                    if (enemies[enemyIndex].active == true)
+                    {
+                        ShootBullet(enemies[enemyIndex].transform.position, new Vector2(0, 1), 500, 20);
+                        ammuttu = true;
+                        nextEnemyShoot = Raylib.GetTime() + enemyShootDelay;
+                        Console.WriteLine("Shot");
+                    }
+                }
+            }
+        }
+
         void UpdateBullets()
         {
             foreach (Bullet bullet in bullets)
