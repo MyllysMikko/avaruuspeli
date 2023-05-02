@@ -15,10 +15,10 @@ namespace Avaruuspeli
         int columns = 9;
         int maxScore = 40;
         int minScore = 10;
-        int enemySpeed = 100;
+        int enemySpeed = 150;
 
         float enemyShootDelay = 1;
-        double nextEnemyShoot = 0;
+        double nextEnemyShoot = 1;
 
         Background bg;
 
@@ -29,6 +29,7 @@ namespace Avaruuspeli
         List<Enemy> enemies;
 
         Texture[] enemyImage = new Texture[2];
+        Texture[] bulletImage = new Texture[2];
 
         int scoreCounter = 0;
 
@@ -58,10 +59,13 @@ namespace Avaruuspeli
             enemyImage[0] = Raylib.LoadTexture("data/images/enemyBlack1.png");
             enemyImage[1] = Raylib.LoadTexture("data/images/enemyBlack2.png");
 
+            bulletImage[0] = Raylib.LoadTexture("data/images/laserBlue16.png");
+            bulletImage[1] = Raylib.LoadTexture("data/images/laserRed16.png");
 
 
-            //TODO formaatio
-            
+
+
+
 
             SpawnEnemies();
 
@@ -111,7 +115,7 @@ namespace Avaruuspeli
 
                     if (!löytyi)
                     {
-                        //Texture enemyImage = Raylib.LoadTexture("data/images/enemyBlack1.png");
+
 
                         enemies.Add(new Enemy(enemyStart, new Vector2(1, 0), enemySpeed, playerSize, enemyScore, enemyImage[(row) % 2]));
                     }
@@ -121,7 +125,6 @@ namespace Avaruuspeli
                 currentY += playerSize;
 
             }
-            Console.WriteLine(enemies.Count);
         }
 
 
@@ -168,6 +171,8 @@ namespace Avaruuspeli
 
                 player.transform.position = pos;
 
+                nextEnemyShoot = Raylib.GetTime() + enemyShootDelay;
+
                 state = GameState.Play;
             }
         }
@@ -178,6 +183,15 @@ namespace Avaruuspeli
             Raylib.ClearBackground(Raylib.BLACK);
             Raylib.DrawText(scoreCounter.ToString(), window_width / 2, window_height / 2, 50, Raylib.SKYBLUE);
             Raylib.EndDrawing();
+        }
+
+        private void Die()
+        {
+            state = GameState.ScoreScreen;
+            foreach (Enemy enemy in enemies)
+            {
+                enemy.active = false;
+            }
         }
 
         private void Draw()
@@ -241,7 +255,7 @@ namespace Avaruuspeli
         {
             if (player.Update())
             {
-                ShootBullet(player.transform.position, new Vector2(0, -1), 500, 20);
+                ShootBullet(player.transform, player.collision, new Vector2(0, -1), 500, 20, true);
             }
             KeepInBounds(player.transform, player.collision, 0, 0, window_width, window_height);
 
@@ -274,23 +288,19 @@ namespace Avaruuspeli
 
         void EnemyShoots()
         {
-            Console.WriteLine($"Waiting to shoot. \nTime now{Raylib.GetFrameTime()}\nNext shot at {nextEnemyShoot}");
             if (Raylib.GetTime() > nextEnemyShoot)
             {
-                Console.WriteLine("Can shoot");
                 Random rand = new Random();
 
                 bool ammuttu = false;
                 while (!ammuttu)
                 {
-                    int enemyIndex = rand.Next(0, enemies.Count);
-
-                    if (enemies[enemyIndex].active == true)
+                    int enemyIndex = rand.Next(enemies.Count);
+                    if (enemies[enemyIndex].active)
                     {
-                        ShootBullet(enemies[enemyIndex].transform.position, new Vector2(0, 1), 500, 20);
+                        ShootBullet(enemies[enemyIndex].transform, enemies[enemyIndex].collision, new Vector2(0, 1), 500, 20, false);
                         ammuttu = true;
                         nextEnemyShoot = Raylib.GetTime() + enemyShootDelay;
-                        Console.WriteLine("Shot");
                     }
                 }
             }
@@ -314,6 +324,7 @@ namespace Avaruuspeli
 
         void CheckCollisions()
         {
+
             foreach (Enemy enemy in enemies)
             {
                 if (enemy.active) 
@@ -322,7 +333,7 @@ namespace Avaruuspeli
 
                     foreach(Bullet bullet in bullets)
                     {
-                        if (bullet.active)
+                        if (bullet.active && bullet.playerBullet)
                         {
                             Rectangle bulletRec = GetRectangle(bullet.transform, bullet.collision);
 
@@ -339,31 +350,50 @@ namespace Avaruuspeli
                                 }
                             }
                         }
+                        else if (bullet.active)
+                        {
+                            Rectangle bulletRec = GetRectangle(bullet.transform, bullet.collision);
+
+                            Rectangle playerRec = GetRectangle(player.transform, player.collision);
+
+                            if (Raylib.CheckCollisionRecs(bulletRec, playerRec))
+                            {
+                                Die();
+                            }
+                        }
                     }
                 }
             }
         }
 
-        void ShootBullet(Vector2 pos, Vector2 dir, float speed, int size)
+        void ShootBullet(TransformComponent transform, CollisionComponent collision, Vector2 dir, float speed, int size, bool playerBullet)
         {
+            Texture bulletText;
+            if (playerBullet)
+            {
+                bulletText = bulletImage[0];
+            }
+            else
+            {
+                bulletText = bulletImage[1];
+            }
 
             foreach (Bullet bullet in bullets)
             {
                 if (bullet.active == false)
                 {
-                    bullet.Reset(pos, dir, speed, size);
-                    ResetBulletPos(bullet, player);
+                    bullet.Reset(transform.position, dir, speed, size, playerBullet);
+                    ResetBulletPos(bullet, transform, collision);
+                    bullet.bulletImage = bulletText;
                     return;
                 }
             }
 
-            Texture bulletImage = Raylib.LoadTexture("data/images/laserBlue16.png");
 
 
-            Bullet newBullet = new Bullet(player.transform.position, new Vector2(0, -1), speed, 20, bulletImage);
-            ResetBulletPos(newBullet, player);
+            Bullet newBullet = new Bullet(transform.position, dir, speed, size, bulletText, playerBullet);
+            ResetBulletPos(newBullet, transform, collision);
             bullets.Add(newBullet);
-            Console.WriteLine($"Bullet count: {bullets.Count}");
 
 
         }
@@ -384,10 +414,11 @@ namespace Avaruuspeli
 
         }
 
-        void ResetBulletPos(Bullet bullet, Player player)
+        void ResetBulletPos(Bullet bullet, TransformComponent transform, CollisionComponent collision)
         {
-            bullet.transform.position.X = (player.transform.position.X + player.collision.size.X / 2) - bullet.collision.size.X / 2;
+            bullet.transform.position.X = (transform.position.X + collision.size.X / 2) - bullet.collision.size.X / 2;
             bullet.transform.position.Y -= bullet.collision.size.Y;
+            bullet.transform.position += bullet.transform.direction * 10;
         }
 
         Rectangle GetRectangle(TransformComponent transform, CollisionComponent collision)
