@@ -30,8 +30,11 @@ namespace Avaruuspeli
 
         Texture[] enemyImage = new Texture[2];
         Texture[] bulletImage = new Texture[2];
+        Sound[] shootSounds = new Sound[2];
+        Sound[] explosions = new Sound[2];
 
         int scoreCounter = 0;
+
 
 
 
@@ -64,7 +67,12 @@ namespace Avaruuspeli
 
 
 
-
+            Raylib.InitAudioDevice();
+            shootSounds[0] = Raylib.LoadSound("data/sound/Pshoot.wav");
+            shootSounds[1] = Raylib.LoadSound("data/sound/Eshoot.wav");
+            explosions[0] = Raylib.LoadSound("data/sound/explosion.wav");
+            explosions[1] = Raylib.LoadSound("data/sound/playerExplodes.wav");
+            
 
 
             SpawnEnemies();
@@ -155,6 +163,16 @@ namespace Avaruuspeli
                 
                 
             }
+            foreach (Sound sound in shootSounds)
+            {
+                Raylib.UnloadSound(sound);
+            }
+            foreach (Sound sound in explosions)
+            {
+                Raylib.UnloadSound(sound);
+            }
+
+            Raylib.CloseAudioDevice();
         }
 
         private void StartDraw()
@@ -233,7 +251,6 @@ namespace Avaruuspeli
             Font defaultFont = Raylib.GetFontDefault();
             string gameOver = "GAME OVER";
             int gameOverSize = 100;
-            //int gameOverWidth = Raylib.MeasureText(gameOver, gameOverSize);
             Vector2 gameOverTextSize = Raylib.MeasureTextEx(defaultFont, gameOver, gameOverSize, 10);
             Vector2 gameOverPos = new Vector2((window_width / 2) - (gameOverTextSize.X / 2), window_height / 2 - (gameOverTextSize.Y / 2));
 
@@ -326,6 +343,7 @@ namespace Avaruuspeli
             if (player.Update())
             {
                 ShootBullet(player.transform, player.collision, new Vector2(0, -1), 500, 20, true);
+                Raylib.PlaySound(shootSounds[0]);
             }
             KeepInBounds(player.transform, player.collision, 0, 0, window_width, window_height);
 
@@ -371,6 +389,7 @@ namespace Avaruuspeli
                         ShootBullet(enemies[enemyIndex].transform, enemies[enemyIndex].collision, new Vector2(0, 1), 500, 20, false);
                         ammuttu = true;
                         nextEnemyShoot = Raylib.GetTime() + enemyShootDelay;
+                        Raylib.PlaySound(shootSounds[1]);
                     }
                 }
             }
@@ -414,6 +433,8 @@ namespace Avaruuspeli
                                 scoreCounter += enemy.scoreValue;
                                 Console.WriteLine(scoreCounter);
 
+                                Raylib.PlaySound(explosions[0]);
+
                                 if (CountActiveEnemies() == 0)
                                 {
                                     state = GameState.ScoreScreen;
@@ -428,6 +449,7 @@ namespace Avaruuspeli
 
                             if (Raylib.CheckCollisionRecs(bulletRec, playerRec))
                             {
+                                Raylib.PlaySound(explosions[1]);
                                 Die();
                             }
                         }
