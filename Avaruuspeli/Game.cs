@@ -43,7 +43,7 @@ namespace Avaruuspeli
 
         void Init()
         {
-            state = GameState.Play;
+            state = GameState.Start;
             Raylib.InitWindow(window_width, window_height, "Avaruuspeli");
 
             Texture playerImage = Raylib.LoadTexture("data/images/playerShip1_orange.png");
@@ -136,6 +136,11 @@ namespace Avaruuspeli
                 
                 switch(state)
                 {
+                    case GameState.Start:
+                        StartDraw();
+                        StartUpdate();
+                        break;
+
                     case GameState.Play:
                         Draw();
                         Update();
@@ -150,6 +155,50 @@ namespace Avaruuspeli
                 
                 
             }
+        }
+
+        private void StartDraw()
+        {
+            Raylib.BeginDrawing();
+            Raylib.ClearBackground(Raylib.BLACK);
+            bg.Draw();
+
+            Font defaultFont = Raylib.GetFontDefault();
+
+            string title = "Space Invaders";
+
+            int titleSize = 100;
+
+            //int textWidth = Raylib.MeasureText(title, titleSize);
+
+            Vector2 titleTextSize = Raylib.MeasureTextEx(defaultFont, title, titleSize, 10);
+
+            string under = "Press ENTER";
+
+            int underSize = 50;
+
+            //int underTextWidth = Raylib.MeasureText(under, underSize);
+
+            Vector2 underTextSize = Raylib.MeasureTextEx(defaultFont, under, underSize, 10);
+
+            Vector2 titlePos = new Vector2((window_width / 2) - (titleTextSize.X / 2), window_height / 2 - (titleTextSize.Y / 2));
+
+            Vector2 underTextPos = new Vector2((window_width / 2) - (underTextSize.X / 2), titlePos.Y + titleTextSize.Y);
+
+            //Raylib.DrawText(text, window_width / 2 - (textSize / 2), window_height / 2, 100, Raylib.GREEN);
+            Raylib.DrawTextEx(defaultFont, title, titlePos, titleSize, 10, Raylib.GREEN);
+            Raylib.DrawTextEx(defaultFont, under, underTextPos, underSize, 10, Raylib.GREEN);
+
+            Raylib.EndDrawing();
+        }
+
+        private void StartUpdate()
+        {
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
+            {
+                state = GameState.Play;
+            }
+            bg.Update();
         }
 
         private void ScoreUpdate()
@@ -181,7 +230,28 @@ namespace Avaruuspeli
         {
             Raylib.BeginDrawing();
             Raylib.ClearBackground(Raylib.BLACK);
-            Raylib.DrawText(scoreCounter.ToString(), window_width / 2, window_height / 2, 50, Raylib.SKYBLUE);
+            Font defaultFont = Raylib.GetFontDefault();
+            string gameOver = "GAME OVER";
+            int gameOverSize = 100;
+            //int gameOverWidth = Raylib.MeasureText(gameOver, gameOverSize);
+            Vector2 gameOverTextSize = Raylib.MeasureTextEx(defaultFont, gameOver, gameOverSize, 10);
+            Vector2 gameOverPos = new Vector2((window_width / 2) - (gameOverTextSize.X / 2), window_height / 2 - (gameOverTextSize.Y / 2));
+
+            string score = $"Final score: {scoreCounter}";
+            int scoreSize = 50;
+            Vector2 scoreTextSize = Raylib.MeasureTextEx(defaultFont, score, scoreSize, 10);
+            Vector2 scorePos = new Vector2((window_width / 2) - (scoreTextSize.X / 2), gameOverPos.Y + gameOverTextSize.Y);
+
+            string retry = "ENTER to try again";
+            int retrysize = 20;
+            Vector2 retryTextSize = Raylib.MeasureTextEx(defaultFont, retry, retrysize, 10);
+            Vector2 retryPos = new Vector2((window_width / 2) - (retryTextSize.X / 2), scorePos.Y + scoreTextSize.Y * 1.5f);
+
+            Raylib.DrawTextEx(defaultFont, gameOver, gameOverPos, gameOverSize, 10, Raylib.GREEN);
+
+            Raylib.DrawTextEx(defaultFont, score, scorePos, scoreSize, 10, Raylib.BLUE);
+
+            Raylib.DrawTextEx(defaultFont, retry, retryPos, retrysize, 10, Raylib.GREEN);
             Raylib.EndDrawing();
         }
 
@@ -197,9 +267,9 @@ namespace Avaruuspeli
         private void Draw()
         {
             Raylib.BeginDrawing();
+            Raylib.ClearBackground(Raylib.BLACK);
             bg.Draw();
 
-            Raylib.ClearBackground(Raylib.BLACK);
             player.Draw();
 
             foreach (Bullet bullet in bullets)
@@ -430,9 +500,9 @@ namespace Avaruuspeli
 
         enum GameState
         {
+            Start,
             Play,
-            ScoreScreen,
-            pause
+            ScoreScreen
         }
     }
 }
