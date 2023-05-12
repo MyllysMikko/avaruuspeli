@@ -1,6 +1,7 @@
 ﻿using Raylib_CsLo;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Reflection.Metadata.Ecma335;
@@ -48,6 +49,9 @@ namespace Avaruuspeli
 
         }
 
+        /// <summary>
+        /// Spawnaa tähtiä. Sama periaate kuin luotien luonnissa.
+        /// </summary>
         void SpawnStar()
         {
             nextSpawn = Raylib.GetTime() + spawnDelay;

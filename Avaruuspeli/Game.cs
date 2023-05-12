@@ -3,6 +3,9 @@ using System.Numerics;
 
 namespace Avaruuspeli
 {
+    /// <summary>
+    /// Pääpelin luokka
+    /// </summary>
     class Game
     {
         GameState state;
@@ -50,6 +53,10 @@ namespace Avaruuspeli
             GameLoop();
         }
 
+        /// <summary>
+        /// Alustaa pelin, lataa tekstuurit ja äänet, luo listat luodeille ja vihollisille.
+        /// Kutsuu "SpawnEnemies" metodin
+        /// </summary>
         void Init()
         {
             state = GameState.Start;
@@ -88,7 +95,9 @@ namespace Avaruuspeli
 
         }
 
-
+        /// <summary>
+        /// Spawnaa viholliset
+        /// </summary>
         void SpawnEnemies()
         {
             int startX = 0;
@@ -144,7 +153,11 @@ namespace Avaruuspeli
         }
 
 
-
+        /// <summary>
+        /// Pelin pyöriminen.
+        /// Suorittaa eri metodit riippuen pelin tilanteesta.
+        /// Kun peli suljetaan, unloadataan äänet ja tekstuurit
+        /// </summary>
         private void GameLoop()
         {
             while (Raylib.WindowShouldClose() == false)
@@ -179,10 +192,21 @@ namespace Avaruuspeli
             {
                 Raylib.UnloadSound(sound);
             }
+            foreach(Texture texture in bulletImage)
+            {
+                Raylib.UnloadTexture(texture);
+            }
+            foreach (Texture texture in enemyImage)
+            {
+                Raylib.UnloadTexture(texture);
+            }
 
             Raylib.CloseAudioDevice();
         }
 
+        /// <summary>
+        /// Alkuvalikon piirtäminen
+        /// </summary>
         private void StartDraw()
         {
             Raylib.BeginDrawing();
@@ -227,6 +251,9 @@ namespace Avaruuspeli
             bg.Update();
         }
 
+        /// <summary>
+        /// ENTERiä painaessa aloitetaan peli uudestaan.
+        /// </summary>
         private void ScoreUpdate()
         {
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
@@ -262,6 +289,9 @@ namespace Avaruuspeli
             }
         }
 
+        /// <summary>
+        /// Pisteruudun piirtäminen
+        /// </summary>
         private void ScoreDraw()
         {
             Raylib.BeginDrawing();
@@ -300,6 +330,9 @@ namespace Avaruuspeli
 
         }
 
+        /// <summary>
+        /// Pääpelin piirtäminen
+        /// </summary>
         private void Draw()
         {
             Raylib.BeginDrawing();
@@ -356,6 +389,9 @@ namespace Avaruuspeli
             return active;
         }
 
+        /// <summary>
+        /// Pääpelin päivittäminen
+        /// </summary>
         void Update()
         {
 
@@ -385,6 +421,10 @@ namespace Avaruuspeli
 
         }
 
+        /// <summary>
+        /// Vihollisten päivitys.
+        /// Tarkistaa myös onko vihollinen päässyt pelaajan luokse, ja tässä tilanteessa lopettaa pelin.
+        /// </summary>
         void UpdateEnemies()
         {
             bool changeDir = false;
@@ -423,6 +463,9 @@ namespace Avaruuspeli
             }
         }
 
+        /// <summary>
+        /// Spawnaa vihollisen luodin
+        /// </summary>
         void EnemyShoots()
         {
             if (Raylib.GetTime() > nextEnemyShoot)
@@ -464,6 +507,12 @@ namespace Avaruuspeli
             }
         }
 
+        /// <summary>
+        /// Tarkistaa luotien collisionit vihollisiin ja pelaajaan.
+        /// Tällähetkellä luoteja tarkistetaan vain jos on vihollisia (foreach enemy if enemy.active... jne)
+        /// Eli jos vihollisia ei ole niin luotien collisioneita ei tarkisteta.
+        /// Tämä voisi aiheuttaa ongelmia mutta tällä hetkellä jos ei ole yhtäkään aktiivista vihollista niin peli loppuu, joten tämän pitäisi olla fine.
+        /// </summary>
         void CheckCollisions()
         {
 
@@ -518,6 +567,10 @@ namespace Avaruuspeli
             }
         }
 
+        /// <summary>
+        /// Laskee lisäpisteet ajan perusteella. 10 pistettä jokaisesta sekunnista alle kahden minuutin.
+        /// Kutsutaan vain jos pelaaja tuhoaa kaikki viholliset.
+        /// </summary>
         void CalculateTimeScore()
         {
             int minuteLimit = 2;
@@ -532,6 +585,16 @@ namespace Avaruuspeli
             }
         }
 
+        /// <summary>
+        /// Spawnaa luodin. Käytetään pelaajan sekä vihollisten luoteihin.
+        /// Jos on ns. "vapaita" luoteja, uudelleenkäytetään nämä. Muuten luodaan uusi luoti.
+        /// </summary>
+        /// <param name="transform">Ampujan transformi. Käytetään luodin sijainnin määrrittelemisessä</param>
+        /// <param name="collision">Ampujan collision. Käytetään luodin sijainnin määrittelemisessä</param>
+        /// <param name="dir">Luodin suunta</param>
+        /// <param name="speed">Luodin nopeus</param>
+        /// <param name="size">Luodin koko</param>
+        /// <param name="playerBullet">Onko tämä pelaajan (true) vai vihollisen (false) luoti?</param>
         void ShootBullet(TransformComponent transform, CollisionComponent collision, Vector2 dir, float speed, int size, bool playerBullet)
         {
             Texture bulletText;
@@ -564,6 +627,13 @@ namespace Avaruuspeli
 
         }
 
+        /// <summary>
+        /// Luodaan comboteksti
+        /// 
+        /// </summary>
+        /// <param name="comboNumber">Combon määrä</param>
+        /// <param name="lifeTime">Kauanko teksti on olemassa</param>
+        /// <param name="position">Tekstin alkusijainti</param>
         void SpawnComboText(int comboNumber, float lifeTime, Vector2 position)
         {
 
@@ -601,6 +671,17 @@ namespace Avaruuspeli
             Console.WriteLine($"text list {movingTexts.Count()}");
         }
 
+        /// <summary>
+        /// Pitää objektit ruudun sisällä. Mikäli objekti yrittää poistua ruudulta, tuodaan se takaisin ja palautetaan true.
+        /// Jos objekti pysyi ruudun sisällä, palautetaan false.
+        /// </summary>
+        /// <param name="transform">Objektin transform. Tästä saadaan objektin sijainti.</param>
+        /// <param name="collision">Objectin collision. Tästä saadaan objektin koko.</param>
+        /// <param name="left">Ruudun vasen reuna</param>
+        /// <param name="top">Ruudun yläreuna</param>
+        /// <param name="right">Ruudun oikeareuna</param>
+        /// <param name="bottom">Ruudun alareuna</param>
+        /// <returns></returns>
         bool KeepInBounds(TransformComponent transform, CollisionComponent collision, float left, float top, float right, float bottom)
         {
             float newX = Math.Clamp(transform.position.X, left, right - collision.size.X);
@@ -617,6 +698,12 @@ namespace Avaruuspeli
 
         }
 
+        /// <summary>
+        /// Hienosäätää luodin sijainnin ampujan keskelle.
+        /// </summary>
+        /// <param name="bullet">Siirrettävä luoti</param>
+        /// <param name="transform">Ampujan transformi. Saadaan ampujan sijainti</param>
+        /// <param name="collision">Ampujan collision. Saadaan ampujan koko jonka avulla voidaan sijoittaa luoti keskelle</param>
         void ResetBulletPos(Bullet bullet, TransformComponent transform, CollisionComponent collision)
         {
             bullet.transform.position.X = (transform.position.X + collision.size.X / 2) - bullet.collision.size.X / 2;
@@ -624,6 +711,12 @@ namespace Avaruuspeli
             bullet.transform.position += bullet.transform.direction * 10;
         }
 
+        /// <summary>
+        /// Palauttaa objektin "rectanglen". Tämän avulla testajaan collisionit.
+        /// </summary>
+        /// <param name="transform">Objektin transform</param>
+        /// <param name="collision">Objektin collision</param>
+        /// <returns></returns>
         Rectangle GetRectangle(TransformComponent transform, CollisionComponent collision)
         {
             Rectangle rec = new Rectangle(transform.position.X, transform.position.Y, collision.size.X, collision.size.Y);
@@ -631,6 +724,9 @@ namespace Avaruuspeli
             return rec;
         }
 
+        /// <summary>
+        /// Pelin tilanteet.
+        /// </summary>
         enum GameState
         {
             Start,
