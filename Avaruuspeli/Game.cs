@@ -28,12 +28,18 @@ namespace Avaruuspeli
 
         List<Enemy> enemies;
 
+        List<MovingText> movingTexts;
+
         Texture[] enemyImage = new Texture[2];
         Texture[] bulletImage = new Texture[2];
         Sound[] shootSounds = new Sound[2];
         Sound[] explosions = new Sound[2];
 
         int scoreCounter = 0;
+
+        float timer;
+
+        int combo = 0;
 
 
 
@@ -59,6 +65,8 @@ namespace Avaruuspeli
 
             enemies = new List<Enemy>();
 
+            movingTexts = new List<MovingText>();
+
             enemyImage[0] = Raylib.LoadTexture("data/images/enemyBlack1.png");
             enemyImage[1] = Raylib.LoadTexture("data/images/enemyBlack2.png");
 
@@ -72,8 +80,8 @@ namespace Avaruuspeli
             shootSounds[1] = Raylib.LoadSound("data/sound/Eshoot.wav");
             explosions[0] = Raylib.LoadSound("data/sound/explosion.wav");
             explosions[1] = Raylib.LoadSound("data/sound/playerExplodes.wav");
-            
 
+            timer = 0;
 
             SpawnEnemies();
 
@@ -224,6 +232,7 @@ namespace Avaruuspeli
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
             {
                 scoreCounter = 0;
+                timer = 0;
                 SpawnEnemies();
 
                 //reset bullets
@@ -234,11 +243,20 @@ namespace Avaruuspeli
                         bullet.active = false;
                     }
                 }
+
+                foreach (MovingText text in movingTexts)
+                {
+                    text.active = false;
+                }
+
                 Vector2 pos = new Vector2(window_width / 2, window_height - 80);
 
                 player.transform.position = pos;
 
                 nextEnemyShoot = Raylib.GetTime() + enemyShootDelay;
+
+                combo = 0;
+
 
                 state = GameState.Play;
             }
@@ -279,6 +297,7 @@ namespace Avaruuspeli
             {
                 enemy.active = false;
             }
+
         }
 
         private void Draw()
@@ -299,9 +318,27 @@ namespace Avaruuspeli
                 enemy.Draw();
             }
 
+            foreach (MovingText text in movingTexts)
+            {
+                text.Draw();
+            }
+
             Raylib.DrawText(scoreCounter.ToString(),10, 10, 16, Raylib.SKYBLUE);
+            DrawTimer();
 
             Raylib.EndDrawing();
+        }
+
+        private void DrawTimer()
+        {
+            Font defaultFont = Raylib.GetFontDefault();
+            string time = timer.ToString("0.#");
+
+
+            int timeSize = 16;
+            Vector2 timeTextSize = Raylib.MeasureTextEx(defaultFont, time, timeSize, 10);
+            Vector2 timePos = new Vector2(window_width - timeTextSize.X, 10);
+            Raylib.DrawTextEx(defaultFont, time, timePos, timeSize, 10, Raylib.SKYBLUE);
         }
 
         int CountActiveEnemies()
@@ -322,20 +359,19 @@ namespace Avaruuspeli
         void Update()
         {
 
-           
 
             UpdatePlayer();
             UpdateEnemies();
             EnemyShoots();
             UpdateBullets();
             CheckCollisions();
-
-
-  
+            UpdateTexts();
 
             
 
             bg.Update();
+
+            timer += Raylib.GetFrameTime();
         }
 
         void UpdatePlayer()
@@ -354,6 +390,11 @@ namespace Avaruuspeli
             bool changeDir = false;
             foreach (Enemy enemy in enemies)
             {
+                if (enemy.transform.position.Y + enemy.collision.size.Y >= player.transform.position.Y)
+                {
+                    Die();
+                }
+
                 enemy.Update();
                 if (KeepInBounds(enemy.transform, enemy.collision, 0, 0, window_width, window_height))
                 {
@@ -371,6 +412,14 @@ namespace Avaruuspeli
                     enemy.transform.position += moveDown;
 
                 }
+            }
+        }
+
+        void UpdateTexts()
+        {
+            foreach (MovingText text in movingTexts)
+            {
+                text.Update();
             }
         }
 
@@ -407,6 +456,10 @@ namespace Avaruuspeli
                 if (KeepInBounds(bullet.transform, bullet.collision, 0, -bullet.collision.size.Y, window_width, window_height))
                 {
                     bullet.active = false;
+                    if (bullet.playerBullet)
+                    {
+                        combo = 0;
+                    }
                 }
             }
         }
@@ -430,7 +483,12 @@ namespace Avaruuspeli
                             {
                                 enemy.active = false;
                                 bullet.active = false;
-                                scoreCounter += enemy.scoreValue;
+                                combo++;
+                                scoreCounter += enemy.scoreValue * combo;
+                                if (combo > 1)
+                                {
+                                    SpawnComboText(combo, 0.5f, enemy.transform.position);
+                                }
                                 Console.WriteLine(scoreCounter);
 
                                 Raylib.PlaySound(explosions[0]);
@@ -438,6 +496,8 @@ namespace Avaruuspeli
                                 if (CountActiveEnemies() == 0)
                                 {
                                     state = GameState.ScoreScreen;
+
+                                    CalculateTimeScore();
                                 }
                             }
                         }
@@ -455,6 +515,20 @@ namespace Avaruuspeli
                         }
                     }
                 }
+            }
+        }
+
+        void CalculateTimeScore()
+        {
+            int minuteLimit = 2;
+            int secondsLimit = minuteLimit * 60;
+            int scorePerSecondUnderLimit = 10;
+
+            int under = (int)(secondsLimit - timer);
+
+            if (under > 1)
+            {
+                scoreCounter += under * scorePerSecondUnderLimit;
             }
         }
 
@@ -488,6 +562,43 @@ namespace Avaruuspeli
             bullets.Add(newBullet);
 
 
+        }
+
+        void SpawnComboText(int comboNumber, float lifeTime, Vector2 position)
+        {
+
+            string comboText = comboNumber + "x";
+            Color[] colors = { Raylib.LIME, Raylib.GREEN, Raylib.YELLOW, Raylib.RED };
+            int colorIndex = comboNumber - 2;
+            if (colorIndex >= colors.Count())
+            {
+                colorIndex= colors.Count() - 1;
+            }
+
+            bool found = false;
+            foreach (MovingText text in movingTexts)
+            {
+                if (!text.active)
+                {
+                    text.transform.position = position;
+                    text.transform.direction = new Vector2(0, -1);
+                    text.transform.speed = 20;
+                    text.text = comboText;
+                    text.color = colors[colorIndex];
+                    text.aliveUntil = (float)Raylib.GetTime() + lifeTime;
+                    text.active = true;
+
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                MovingText combo = new MovingText(comboText, position, new Vector2(0, -1), 20, lifeTime, colors[colorIndex], 20);
+                movingTexts.Add(combo);
+            }
+            Console.WriteLine($"text list {movingTexts.Count()}");
         }
 
         bool KeepInBounds(TransformComponent transform, CollisionComponent collision, float left, float top, float right, float bottom)
