@@ -487,6 +487,9 @@ namespace Avaruuspeli
             }
         }
 
+        /// <summary>
+        /// Kutsutaan luotien Update metodit. Mikäli pelaajan luoti poistuu ruudulta, resetataan combo.
+        /// </summary>
         void UpdateBullets()
         {
             foreach (Bullet bullet in bullets)
@@ -509,7 +512,8 @@ namespace Avaruuspeli
 
         /// <summary>
         /// Tarkistaa luotien collisionit vihollisiin ja pelaajaan.
-        /// Tällähetkellä luoteja tarkistetaan vain jos on vihollisia (foreach enemy if enemy.active... jne)
+        /// Luodin osuessa viholliseen, nostetaan comboa yhdellä
+        /// Tällä hetkellä luoteja tarkistetaan vain jos on vihollisia (foreach enemy if enemy.active... jne)
         /// Eli jos vihollisia ei ole niin luotien collisioneita ei tarkisteta.
         /// Tämä voisi aiheuttaa ongelmia mutta tällä hetkellä jos ei ole yhtäkään aktiivista vihollista niin peli loppuu, joten tämän pitäisi olla fine.
         /// </summary>
