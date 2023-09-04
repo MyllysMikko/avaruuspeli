@@ -215,23 +215,34 @@ namespace Avaruuspeli
             Raylib.ClearBackground(Raylib.BLACK);
             bg.Draw();
 
-            mc.StartMenu(window_width * 0.5f, window_height * 0.5f, 120, 40, 10);
+            float x = window_width * 0.5f;
+            float y = window_height * 0.5f;
+            float menuWidth = 120;
+            float menuHeight = 40;
+            float between = 10;
+
+
+
+            mc.StartMenu(x, y, menuWidth, menuHeight, between);
             if (mc.Button("Testi"))
             {
                 state = GameState.Play;
             }
-            mc.Button("Testi2");
+            if (mc.Button("Testi2"))
+            {
+                Raylib.CloseWindow();
+            }
 
 
-            //Font defaultFont = Raylib.GetFontDefault();
+            Font defaultFont = Raylib.GetFontDefault();
             //
-            //string title = "Space Invaders";
+            string title = "Space Invaders";
             //
-            //int titleSize = 100;
+            int titleSize = 100;
             //
             ////int textWidth = Raylib.MeasureText(title, titleSize);
             //
-            //Vector2 titleTextSize = Raylib.MeasureTextEx(defaultFont, title, titleSize, 10);
+            Vector2 titleTextSize = Raylib.MeasureTextEx(defaultFont, title, titleSize, 10);
             //
             //string under = "Press ENTER";
             //
@@ -241,12 +252,12 @@ namespace Avaruuspeli
             //
             //Vector2 underTextSize = Raylib.MeasureTextEx(defaultFont, under, underSize, 10);
             //
-            //Vector2 titlePos = new Vector2((window_width / 2) - (titleTextSize.X / 2), window_height / 2 - (titleTextSize.Y / 2));
+            Vector2 titlePos = new Vector2((window_width / 2) - (titleTextSize.X / 2), window_height / 4 - (titleTextSize.Y / 2));
             //
             //Vector2 underTextPos = new Vector2((window_width / 2) - (underTextSize.X / 2), titlePos.Y + titleTextSize.Y);
             //
             ////Raylib.DrawText(text, window_width / 2 - (textSize / 2), window_height / 2, 100, Raylib.GREEN);
-            //Raylib.DrawTextEx(defaultFont, title, titlePos, titleSize, 10, Raylib.GREEN);
+            Raylib.DrawTextEx(defaultFont, title, titlePos, titleSize, 10, Raylib.GREEN);
             //Raylib.DrawTextEx(defaultFont, under, underTextPos, underSize, 10, Raylib.GREEN);
 
             Raylib.EndDrawing();
