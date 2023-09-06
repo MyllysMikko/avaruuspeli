@@ -9,8 +9,13 @@ namespace Avaruuspeli
     class Game
     {
         MenuCreator mc = new MenuCreator();
+        MainMenu mainMenu = new MainMenu();
+        PauseMenu pauseMenu = new PauseMenu();
 
-        GameState state;
+
+
+        //GameState state;
+        Stack<GameState> stateStack = new Stack<GameState>();
         int window_width = 960;
         int window_height = 720;
 
@@ -46,7 +51,7 @@ namespace Avaruuspeli
 
         int combo = 0;
 
-
+        
 
 
         public void Run()
@@ -61,7 +66,7 @@ namespace Avaruuspeli
         /// </summary>
         void Init()
         {
-            state = GameState.Start;
+            stateStack.Push(GameState.Start);
             Raylib.InitWindow(window_width, window_height, "Avaruuspeli");
 
             Texture playerImage = Raylib.LoadTexture("data/images/playerShip1_orange.png");
@@ -91,6 +96,12 @@ namespace Avaruuspeli
             explosions[1] = Raylib.LoadSound("data/sound/playerExplodes.wav");
 
             timer = 0;
+
+            Raylib.SetExitKey(KeyboardKey.KEY_NULL);
+
+            mainMenu.StartPressed += OnStartButtonPressed;
+            pauseMenu.BackPressed += OnBackButtonPressed;
+            
 
             SpawnEnemies();
 
@@ -165,16 +176,20 @@ namespace Avaruuspeli
             while (Raylib.WindowShouldClose() == false)
             {
                 
-                switch(state)
+                switch(stateStack.Peek())
                 {
                     case GameState.Start:
-                        StartDraw();
-                        StartUpdate();
+                        mainMenu.Draw();
                         break;
 
                     case GameState.Play:
                         Draw();
                         Update();
+                        Console.WriteLine(stateStack.Count);
+                        break;
+
+                    case GameState.Pause:
+                        pauseMenu.Draw();
                         break;
 
                     case GameState.ScoreScreen:
@@ -211,59 +226,10 @@ namespace Avaruuspeli
         /// </summary>
         private void StartDraw()
         {
-            Raylib.BeginDrawing();
-            Raylib.ClearBackground(Raylib.BLACK);
-            bg.Draw();
-
-            float x = window_width * 0.5f;
-            float y = window_height * 0.5f;
-            float menuWidth = 120;
-            float menuHeight = 40;
-            float between = 10;
-
-
-
-            mc.StartMenu(x, y, menuWidth, menuHeight, between);
-            if (mc.Button("Testi"))
-            {
-                state = GameState.Play;
-            }
-            if (mc.Button("Testi2"))
-            {
-                Raylib.CloseWindow();
-            }
-
-
-            Font defaultFont = Raylib.GetFontDefault();
-            //
-            string title = "Space Invaders";
-            //
-            int titleSize = 100;
-            //
-            ////int textWidth = Raylib.MeasureText(title, titleSize);
-            //
-            Vector2 titleTextSize = Raylib.MeasureTextEx(defaultFont, title, titleSize, 10);
-            //
-            //string under = "Press ENTER";
-            //
-            //int underSize = 50;
-            //
-            ////int underTextWidth = Raylib.MeasureText(under, underSize);
-            //
-            //Vector2 underTextSize = Raylib.MeasureTextEx(defaultFont, under, underSize, 10);
-            //
-            Vector2 titlePos = new Vector2((window_width / 2) - (titleTextSize.X / 2), window_height / 4 - (titleTextSize.Y / 2));
-            //
-            //Vector2 underTextPos = new Vector2((window_width / 2) - (underTextSize.X / 2), titlePos.Y + titleTextSize.Y);
-            //
-            ////Raylib.DrawText(text, window_width / 2 - (textSize / 2), window_height / 2, 100, Raylib.GREEN);
-            Raylib.DrawTextEx(defaultFont, title, titlePos, titleSize, 10, Raylib.GREEN);
-            //Raylib.DrawTextEx(defaultFont, under, underTextPos, underSize, 10, Raylib.GREEN);
-
-            Raylib.EndDrawing();
+            
         }
 
-        private void StartUpdate()
+        /*private void StartUpdate()
         {
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
             {
@@ -271,6 +237,7 @@ namespace Avaruuspeli
             }
             bg.Update();
         }
+        */
 
         /// <summary>
         /// ENTERiä painaessa aloitetaan peli uudestaan.
@@ -279,34 +246,10 @@ namespace Avaruuspeli
         {
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
             {
-                scoreCounter = 0;
-                timer = 0;
-                SpawnEnemies();
 
-                //reset bullets
-                foreach (Bullet bullet in bullets)
-                {
-                    if (bullet.active)
-                    {
-                        bullet.active = false;
-                    }
-                }
+                ResetGame();
 
-                foreach (MovingText text in movingTexts)
-                {
-                    text.active = false;
-                }
-
-                Vector2 pos = new Vector2(window_width / 2, window_height - 80);
-
-                player.transform.position = pos;
-
-                nextEnemyShoot = Raylib.GetTime() + enemyShootDelay;
-
-                combo = 0;
-
-
-                state = GameState.Play;
+                stateStack.Pop();
             }
         }
 
@@ -343,12 +286,41 @@ namespace Avaruuspeli
 
         private void Die()
         {
-            state = GameState.ScoreScreen;
+            stateStack.Push(GameState.ScoreScreen);
             foreach (Enemy enemy in enemies)
             {
                 enemy.active = false;
             }
 
+        }
+
+        private void ResetGame()
+        {
+            scoreCounter = 0;
+            timer = 0;
+            SpawnEnemies();
+
+            //reset bullets
+            foreach (Bullet bullet in bullets)
+            {
+                if (bullet.active)
+                {
+                    bullet.active = false;
+                }
+            }
+
+            foreach (MovingText text in movingTexts)
+            {
+                text.active = false;
+            }
+
+            Vector2 pos = new Vector2(window_width / 2, window_height - 80);
+
+            player.transform.position = pos;
+
+            nextEnemyShoot = Raylib.GetTime() + enemyShootDelay;
+
+            combo = 0;
         }
 
         /// <summary>
@@ -439,6 +411,11 @@ namespace Avaruuspeli
                 Raylib.PlaySound(shootSounds[0]);
             }
             KeepInBounds(player.transform, player.collision, 0, 0, window_width, window_height);
+
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
+            {
+                stateStack.Push(GameState.Pause);
+            }
 
         }
 
@@ -563,13 +540,12 @@ namespace Avaruuspeli
                                 {
                                     SpawnComboText(combo, 0.5f, enemy.transform.position);
                                 }
-                                Console.WriteLine(scoreCounter);
 
                                 Raylib.PlaySound(explosions[0]);
 
                                 if (CountActiveEnemies() == 0)
                                 {
-                                    state = GameState.ScoreScreen;
+                                    stateStack.Push(GameState.ScoreScreen);
 
                                     CalculateTimeScore();
                                 }
@@ -693,7 +669,6 @@ namespace Avaruuspeli
                 MovingText combo = new MovingText(comboText, position, new Vector2(0, -1), 20, lifeTime, colors[colorIndex], 20);
                 movingTexts.Add(combo);
             }
-            Console.WriteLine($"text list {movingTexts.Count()}");
         }
 
         /// <summary>
@@ -749,6 +724,16 @@ namespace Avaruuspeli
             return rec;
         }
 
+        void OnStartButtonPressed(Object sender, EventArgs e)
+        {
+            stateStack.Push(GameState.Play);
+        }
+
+        void OnBackButtonPressed(Object sender, EventArgs e)
+        {
+            stateStack.Pop();
+        }
+
         /// <summary>
         /// Pelin tilanteet.
         /// </summary>
@@ -756,6 +741,8 @@ namespace Avaruuspeli
         {
             Start,
             Play,
+            Pause,
+            Options,
             ScoreScreen
         }
     }

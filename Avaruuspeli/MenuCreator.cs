@@ -34,5 +34,11 @@ namespace Avaruuspeli
             return input;
         }
 
+        public void Label(string text)
+        {
+            RayGui.GuiLabel(new Rectangle(x - width * 0.5f, y - height * 0.5f, width, height), text);
+            y += height + between;
+        }
+
     }
 }
