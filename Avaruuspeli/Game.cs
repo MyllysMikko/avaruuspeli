@@ -11,6 +11,7 @@ namespace Avaruuspeli
         MenuCreator mc = new MenuCreator();
         MainMenu mainMenu = new MainMenu();
         PauseMenu pauseMenu = new PauseMenu();
+        OptionsMenu optionsMenu = new OptionsMenu();
 
 
 
@@ -100,10 +101,16 @@ namespace Avaruuspeli
             Raylib.SetExitKey(KeyboardKey.KEY_NULL);
 
             mainMenu.StartPressed += OnStartButtonPressed;
+            mainMenu.StartPressed += ResetGame;
+            mainMenu.OptionsPressed += OnOptionsPressed;
             pauseMenu.BackPressed += OnBackButtonPressed;
+            pauseMenu.MainMenuPressed += OnMainMenuPressed;
+            pauseMenu.OptionsPressed += OnOptionsPressed;
+            optionsMenu.BackPressed += OnBackButtonPressed;
+
             
 
-            SpawnEnemies();
+            //SpawnEnemies();
 
 
         }
@@ -192,8 +199,11 @@ namespace Avaruuspeli
                         pauseMenu.Draw();
                         break;
 
+                    case GameState.Options:
+                        optionsMenu.Draw();
+                        break;
+
                     case GameState.ScoreScreen:
-                        ScoreUpdate();
                         ScoreDraw();
                         break;
 
@@ -242,16 +252,7 @@ namespace Avaruuspeli
         /// <summary>
         /// ENTERiä painaessa aloitetaan peli uudestaan.
         /// </summary>
-        private void ScoreUpdate()
-        {
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
-            {
 
-                ResetGame();
-
-                stateStack.Pop();
-            }
-        }
 
         /// <summary>
         /// Pisteruudun piirtäminen
@@ -294,11 +295,15 @@ namespace Avaruuspeli
 
         }
 
-        private void ResetGame()
+        private void ResetGame(Object sender, EventArgs e)
         {
             scoreCounter = 0;
             timer = 0;
-            SpawnEnemies();
+
+            foreach (Enemy enemy in enemies)
+            {
+                enemy.active = false;
+            }
 
             //reset bullets
             foreach (Bullet bullet in bullets)
@@ -313,6 +318,8 @@ namespace Avaruuspeli
             {
                 text.active = false;
             }
+
+            SpawnEnemies();
 
             Vector2 pos = new Vector2(window_width / 2, window_height - 80);
 
@@ -732,6 +739,17 @@ namespace Avaruuspeli
         void OnBackButtonPressed(Object sender, EventArgs e)
         {
             stateStack.Pop();
+        }
+
+        void OnOptionsPressed(Object sender, EventArgs e)
+        {
+            stateStack.Push(GameState.Options);
+        }
+
+        void OnMainMenuPressed(Object sender, EventArgs e)
+        {
+            stateStack.Clear();
+            stateStack.Push(GameState.Start);
         }
 
         /// <summary>

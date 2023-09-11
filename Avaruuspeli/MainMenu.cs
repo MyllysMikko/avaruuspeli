@@ -13,6 +13,7 @@ namespace Avaruuspeli
         MenuCreator mc = new MenuCreator();
         public EventHandler StartPressed;
         public EventHandler QuitPressed;
+        public EventHandler OptionsPressed;
 
         public void Draw()
         {
@@ -28,11 +29,15 @@ namespace Avaruuspeli
 
 
             mc.StartMenu(x, y, menuWidth, menuHeight, between);
-            if (mc.Button("Testi"))
+            if (mc.Button("Start Game"))
             {
                 StartPressed.Invoke(this, EventArgs.Empty);
             }
-            if (mc.Button("Testi2"))
+            if (mc.Button("Options"))
+            {
+                OptionsPressed.Invoke(this, EventArgs.Empty);
+            }
+            if (mc.Button("Quit Game"))
             {
                 QuitPressed.Invoke(this, EventArgs.Empty);
             }
