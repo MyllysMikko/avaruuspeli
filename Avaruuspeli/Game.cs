@@ -29,7 +29,7 @@ namespace Avaruuspeli
         int enemySpeed = 150;
 
         float enemyShootDelay = 1;
-        double nextEnemyShoot = 1;
+        double enemyShootTimer = 0;
 
         Background bg;
 
@@ -325,7 +325,7 @@ namespace Avaruuspeli
 
             player.transform.position = pos;
 
-            nextEnemyShoot = Raylib.GetTime() + enemyShootDelay;
+            enemyShootTimer = 0;
 
             combo = 0;
         }
@@ -473,7 +473,8 @@ namespace Avaruuspeli
         /// </summary>
         void EnemyShoots()
         {
-            if (Raylib.GetTime() > nextEnemyShoot)
+            enemyShootTimer += Raylib.GetFrameTime();
+            if (enemyShootTimer >= enemyShootDelay)
             {
                 Random rand = new Random();
 
@@ -485,7 +486,7 @@ namespace Avaruuspeli
                     {
                         ShootBullet(enemies[enemyIndex].transform, enemies[enemyIndex].collision, new Vector2(0, 1), 500, 20, false);
                         ammuttu = true;
-                        nextEnemyShoot = Raylib.GetTime() + enemyShootDelay;
+                        enemyShootTimer = 0;
                         Raylib.PlaySound(shootSounds[1]);
                     }
                 }
