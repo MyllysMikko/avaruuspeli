@@ -12,6 +12,7 @@ namespace Avaruuspeli
         MainMenu mainMenu = new MainMenu();
         PauseMenu pauseMenu = new PauseMenu();
         OptionsMenu optionsMenu = new OptionsMenu();
+        ScoreScreen scoreScreen = new ScoreScreen();
 
 
 
@@ -107,6 +108,8 @@ namespace Avaruuspeli
             pauseMenu.MainMenuPressed += OnMainMenuPressed;
             pauseMenu.OptionsPressed += OnOptionsPressed;
             optionsMenu.BackPressed += OnBackButtonPressed;
+            scoreScreen.BackPressed += OnBackButtonPressed;
+            scoreScreen.BackPressed += ResetGame;
 
             
 
@@ -160,8 +163,6 @@ namespace Avaruuspeli
 
                     if (!löytyi)
                     {
-
-
                         enemies.Add(new Enemy(enemyStart, new Vector2(1, 0), enemySpeed, playerSize, enemyScore, enemyImage[(row) % 2]));
                     }
 
@@ -204,7 +205,7 @@ namespace Avaruuspeli
                         break;
 
                     case GameState.ScoreScreen:
-                        ScoreDraw();
+                        scoreScreen.Draw();
                         break;
 
                 }
@@ -231,67 +232,15 @@ namespace Avaruuspeli
             Raylib.CloseAudioDevice();
         }
 
-        /// <summary>
-        /// Alkuvalikon piirtäminen
-        /// </summary>
-        private void StartDraw()
-        {
-            
-        }
-
-        /*private void StartUpdate()
-        {
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
-            {
-                state = GameState.Play;
-            }
-            bg.Update();
-        }
-        */
-
-        /// <summary>
-        /// ENTERiä painaessa aloitetaan peli uudestaan.
-        /// </summary>
-
-
-        /// <summary>
-        /// Pisteruudun piirtäminen
-        /// </summary>
-        private void ScoreDraw()
-        {
-            Raylib.BeginDrawing();
-            Raylib.ClearBackground(Raylib.BLACK);
-            Font defaultFont = Raylib.GetFontDefault();
-            string gameOver = "GAME OVER";
-            int gameOverSize = 100;
-            Vector2 gameOverTextSize = Raylib.MeasureTextEx(defaultFont, gameOver, gameOverSize, 10);
-            Vector2 gameOverPos = new Vector2((window_width / 2) - (gameOverTextSize.X / 2), window_height / 2 - (gameOverTextSize.Y / 2));
-
-            string score = $"Final score: {scoreCounter}";
-            int scoreSize = 50;
-            Vector2 scoreTextSize = Raylib.MeasureTextEx(defaultFont, score, scoreSize, 10);
-            Vector2 scorePos = new Vector2((window_width / 2) - (scoreTextSize.X / 2), gameOverPos.Y + gameOverTextSize.Y);
-
-            string retry = "ENTER to try again";
-            int retrysize = 20;
-            Vector2 retryTextSize = Raylib.MeasureTextEx(defaultFont, retry, retrysize, 10);
-            Vector2 retryPos = new Vector2((window_width / 2) - (retryTextSize.X / 2), scorePos.Y + scoreTextSize.Y * 1.5f);
-
-            Raylib.DrawTextEx(defaultFont, gameOver, gameOverPos, gameOverSize, 10, Raylib.GREEN);
-
-            Raylib.DrawTextEx(defaultFont, score, scorePos, scoreSize, 10, Raylib.BLUE);
-
-            Raylib.DrawTextEx(defaultFont, retry, retryPos, retrysize, 10, Raylib.GREEN);
-            Raylib.EndDrawing();
-        }
 
         private void Die()
         {
-            stateStack.Push(GameState.ScoreScreen);
             foreach (Enemy enemy in enemies)
             {
                 enemy.active = false;
             }
+
+            EndGame();
 
         }
 
@@ -326,6 +275,7 @@ namespace Avaruuspeli
             player.transform.position = pos;
 
             enemyShootTimer = 0;
+            player.ResetShootTimer();
 
             combo = 0;
         }
@@ -553,9 +503,8 @@ namespace Avaruuspeli
 
                                 if (CountActiveEnemies() == 0)
                                 {
-                                    stateStack.Push(GameState.ScoreScreen);
-
                                     CalculateTimeScore();
+                                    EndGame();
                                 }
                             }
                         }
@@ -730,6 +679,12 @@ namespace Avaruuspeli
             Rectangle rec = new Rectangle(transform.position.X, transform.position.Y, collision.size.X, collision.size.Y);
 
             return rec;
+        }
+
+        void EndGame()
+        {
+            stateStack.Push(GameState.ScoreScreen);
+            scoreScreen.finalScore = scoreCounter;
         }
 
         void OnStartButtonPressed(Object sender, EventArgs e)

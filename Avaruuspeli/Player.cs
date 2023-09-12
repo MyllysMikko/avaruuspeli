@@ -55,5 +55,10 @@ namespace Avaruuspeli
 
             return false;
         }
+
+        public void ResetShootTimer()
+        {
+            shootTimer = 0;
+        }
     }
 }
