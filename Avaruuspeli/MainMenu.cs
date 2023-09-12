@@ -39,7 +39,8 @@ namespace Avaruuspeli
             }
             if (mc.Button("Quit Game"))
             {
-                QuitPressed.Invoke(this, EventArgs.Empty);
+                //QuitPressed.Invoke(this, EventArgs.Empty);
+                Raylib.CloseWindow();
             }
 
 

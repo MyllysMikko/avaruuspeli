@@ -14,12 +14,17 @@ namespace Avaruuspeli
 
         public EventHandler BackPressed;
 
+        public EventHandler MainMenuPressed;
+
         public int finalScore = 0;
 
         public void Draw()
         {
+
+
             int window_height = Raylib.GetScreenHeight();
             int window_width = Raylib.GetScreenWidth();
+
 
             Raylib.BeginDrawing();
             Raylib.ClearBackground(Raylib.BLACK);
@@ -34,16 +39,30 @@ namespace Avaruuspeli
             Vector2 scoreTextSize = Raylib.MeasureTextEx(defaultFont, score, scoreSize, 10);
             Vector2 scorePos = new Vector2((window_width / 2) - (scoreTextSize.X / 2), gameOverPos.Y + gameOverTextSize.Y);
 
-            string retry = "ENTER to try again";
-            int retrysize = 20;
-            Vector2 retryTextSize = Raylib.MeasureTextEx(defaultFont, retry, retrysize, 10);
-            Vector2 retryPos = new Vector2((window_width / 2) - (retryTextSize.X / 2), scorePos.Y + scoreTextSize.Y * 1.5f);
 
             Raylib.DrawTextEx(defaultFont, gameOver, gameOverPos, gameOverSize, 10, Raylib.GREEN);
 
             Raylib.DrawTextEx(defaultFont, score, scorePos, scoreSize, 10, Raylib.BLUE);
 
-            Raylib.DrawTextEx(defaultFont, retry, retryPos, retrysize, 10, Raylib.GREEN);
+
+            float x = Raylib.GetScreenWidth() * 0.5f;
+            float y = Raylib.GetScreenHeight() * 0.5f;
+            float menuWidth = 120;
+            float menuHeight = 40;
+            float between = 10;
+
+            mc.StartMenu(x, scorePos.Y + scoreTextSize.Y * 2f, menuWidth, menuHeight, between);
+
+            if (mc.Button("Retry"))
+            {
+                BackPressed.Invoke(this, EventArgs.Empty);
+            }
+
+            if (mc.Button("Main Menu"))
+            {
+                MainMenuPressed.Invoke(this, EventArgs.Empty);
+            }
+
             Raylib.EndDrawing();
 
             if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))

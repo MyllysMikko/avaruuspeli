@@ -100,6 +100,7 @@ namespace Avaruuspeli
             timer = 0;
 
             Raylib.SetExitKey(KeyboardKey.KEY_NULL);
+            RayGui.GuiLoadStyle("Styles/style.rgs");
 
             mainMenu.StartPressed += OnStartButtonPressed;
             mainMenu.StartPressed += ResetGame;
@@ -110,6 +111,7 @@ namespace Avaruuspeli
             optionsMenu.BackPressed += OnBackButtonPressed;
             scoreScreen.BackPressed += OnBackButtonPressed;
             scoreScreen.BackPressed += ResetGame;
+            scoreScreen.MainMenuPressed += OnMainMenuPressed;
 
             
 
@@ -207,6 +209,29 @@ namespace Avaruuspeli
                     case GameState.ScoreScreen:
                         scoreScreen.Draw();
                         break;
+
+#if DEBUG
+                    case GameState.Cheat:
+
+                        Raylib.BeginDrawing();
+
+                        Raylib.DrawText("R: Reset game", 0, 0, 100, Raylib.GREEN);
+
+                        if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
+                        {
+                            stateStack.Pop();
+                        }
+
+                        if (Raylib.IsKeyPressed(KeyboardKey.KEY_R))
+                        {
+                            OnBackButtonPressed(this, EventArgs.Empty);
+                            ResetGame(this, EventArgs.Empty);
+                        }
+
+                        Raylib.EndDrawing();
+
+                        break;
+#endif
 
                 }
                 
@@ -353,7 +378,14 @@ namespace Avaruuspeli
             CheckCollisions();
             UpdateTexts();
 
-            
+#if DEBUG
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_F1))
+            {
+                stateStack.Push(GameState.Cheat);
+
+            }
+
+#endif
 
             bg.Update();
 
@@ -717,6 +749,9 @@ namespace Avaruuspeli
             Play,
             Pause,
             Options,
+#if DEBUG
+            Cheat,
+#endif
             ScoreScreen
         }
     }

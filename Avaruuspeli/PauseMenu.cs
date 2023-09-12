@@ -44,6 +44,7 @@ namespace Avaruuspeli
             {
                 MainMenuPressed.Invoke(this, EventArgs.Empty);
             }
+
             
             /*if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
             {
