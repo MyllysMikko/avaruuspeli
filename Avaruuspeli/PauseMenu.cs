@@ -45,13 +45,6 @@ namespace Avaruuspeli
                 MainMenuPressed.Invoke(this, EventArgs.Empty);
             }
 
-            
-            /*if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
-            {
-                BackPressed.Invoke(this, EventArgs.Empty);
-            }*/
-
-
             Raylib.EndDrawing();
         }
     }

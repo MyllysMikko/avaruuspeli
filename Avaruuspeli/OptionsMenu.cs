@@ -37,12 +37,6 @@ namespace Avaruuspeli
             }
 
 
-            /*if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
-            {
-                BackPressed.Invoke(this, EventArgs.Empty);
-            }*/
-
-
             Raylib.EndDrawing();
         }
     }
