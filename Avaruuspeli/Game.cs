@@ -53,8 +53,10 @@ namespace Avaruuspeli
 
         int combo = 0;
 
-        
 
+#if DEBUG
+        bool invincible = false;
+#endif
 
         public void Run()
         {
@@ -217,6 +219,8 @@ namespace Avaruuspeli
 
                         Raylib.DrawText("R: Reset game", 0, 0, 100, Raylib.GREEN);
 
+                        Raylib.DrawText("I: Invincibility", 0, 100, 100, Raylib.GREEN);
+
                         if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
                         {
                             stateStack.Pop();
@@ -226,6 +230,13 @@ namespace Avaruuspeli
                         {
                             OnBackButtonPressed(this, EventArgs.Empty);
                             ResetGame(this, EventArgs.Empty);
+                        }
+
+                        if (Raylib.IsKeyPressed(KeyboardKey.KEY_I))
+                        {
+                            OnBackButtonPressed(this, EventArgs.Empty);
+                            Raylib.PlaySound(explosions[0]);
+                            invincible = !invincible;
                         }
 
                         Raylib.EndDrawing();
@@ -542,12 +553,20 @@ namespace Avaruuspeli
                         }
                         else if (bullet.active)
                         {
+
+
                             Rectangle bulletRec = GetRectangle(bullet.transform, bullet.collision);
 
                             Rectangle playerRec = GetRectangle(player.transform, player.collision);
 
                             if (Raylib.CheckCollisionRecs(bulletRec, playerRec))
                             {
+#if DEBUG
+                                if (invincible)
+                                {
+                                    return;
+                                }
+#endif
                                 Raylib.PlaySound(explosions[1]);
                                 Die();
                             }
