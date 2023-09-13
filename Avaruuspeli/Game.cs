@@ -102,7 +102,7 @@ namespace Avaruuspeli
             timer = 0;
 
             Raylib.SetExitKey(KeyboardKey.KEY_NULL);
-            RayGui.GuiLoadStyle("Styles/style.rgs");
+            RayGui.GuiLoadStyle("data/styles/style.rgs");
 
             mainMenu.StartPressed += OnStartButtonPressed;
             mainMenu.StartPressed += ResetGame;
