@@ -41,6 +41,7 @@ namespace Avaruuspeli
             {
                 //QuitPressed.Invoke(this, EventArgs.Empty);
                 Raylib.CloseWindow();
+                return;
             }
 
 
