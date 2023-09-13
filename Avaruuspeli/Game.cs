@@ -196,7 +196,6 @@ namespace Avaruuspeli
                     case GameState.Play:
                         Draw();
                         Update();
-                        Console.WriteLine(stateStack.Count);
                         break;
 
                     case GameState.Pause:
