@@ -8,7 +8,16 @@ namespace Avaruuspeli
     /// </summary>
     class Game
     {
-        GameState state;
+        MenuCreator mc = new MenuCreator();
+        MainMenu mainMenu = new MainMenu();
+        PauseMenu pauseMenu = new PauseMenu();
+        OptionsMenu optionsMenu = new OptionsMenu();
+        ScoreScreen scoreScreen = new ScoreScreen();
+
+
+
+        //GameState state;
+        Stack<GameState> stateStack = new Stack<GameState>();
         int window_width = 960;
         int window_height = 720;
 
@@ -21,7 +30,7 @@ namespace Avaruuspeli
         int enemySpeed = 150;
 
         float enemyShootDelay = 1;
-        double nextEnemyShoot = 1;
+        double enemyShootTimer = 0;
 
         Background bg;
 
@@ -45,7 +54,9 @@ namespace Avaruuspeli
         int combo = 0;
 
 
-
+#if DEBUG
+        bool invincible = false;
+#endif
 
         public void Run()
         {
@@ -59,7 +70,7 @@ namespace Avaruuspeli
         /// </summary>
         void Init()
         {
-            state = GameState.Start;
+            stateStack.Push(GameState.Start);
             Raylib.InitWindow(window_width, window_height, "Avaruuspeli");
 
             Texture playerImage = Raylib.LoadTexture("data/images/playerShip1_orange.png");
@@ -90,7 +101,23 @@ namespace Avaruuspeli
 
             timer = 0;
 
-            SpawnEnemies();
+            Raylib.SetExitKey(KeyboardKey.KEY_NULL);
+            RayGui.GuiLoadStyle("Styles/style.rgs");
+
+            mainMenu.StartPressed += OnStartButtonPressed;
+            mainMenu.StartPressed += ResetGame;
+            mainMenu.OptionsPressed += OnOptionsPressed;
+            pauseMenu.BackPressed += OnBackButtonPressed;
+            pauseMenu.MainMenuPressed += OnMainMenuPressed;
+            pauseMenu.OptionsPressed += OnOptionsPressed;
+            optionsMenu.BackPressed += OnBackButtonPressed;
+            scoreScreen.BackPressed += OnBackButtonPressed;
+            scoreScreen.BackPressed += ResetGame;
+            scoreScreen.MainMenuPressed += OnMainMenuPressed;
+
+            
+
+            //SpawnEnemies();
 
 
         }
@@ -140,8 +167,6 @@ namespace Avaruuspeli
 
                     if (!löytyi)
                     {
-
-
                         enemies.Add(new Enemy(enemyStart, new Vector2(1, 0), enemySpeed, playerSize, enemyScore, enemyImage[(row) % 2]));
                     }
 
@@ -163,22 +188,61 @@ namespace Avaruuspeli
             while (Raylib.WindowShouldClose() == false)
             {
                 
-                switch(state)
+                switch(stateStack.Peek())
                 {
                     case GameState.Start:
-                        StartDraw();
-                        StartUpdate();
+                        mainMenu.Draw();
                         break;
 
                     case GameState.Play:
                         Draw();
                         Update();
+                        Console.WriteLine(stateStack.Count);
+                        break;
+
+                    case GameState.Pause:
+                        pauseMenu.Draw();
+                        break;
+
+                    case GameState.Options:
+                        optionsMenu.Draw();
                         break;
 
                     case GameState.ScoreScreen:
-                        ScoreUpdate();
-                        ScoreDraw();
+                        scoreScreen.Draw();
                         break;
+
+#if DEBUG
+                    case GameState.Cheat:
+
+                        Raylib.BeginDrawing();
+
+                        Raylib.DrawText("R: Reset game", 0, 0, 100, Raylib.GREEN);
+
+                        Raylib.DrawText("I: Invincibility", 0, 100, 100, Raylib.GREEN);
+
+                        if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
+                        {
+                            stateStack.Pop();
+                        }
+
+                        if (Raylib.IsKeyPressed(KeyboardKey.KEY_R))
+                        {
+                            OnBackButtonPressed(this, EventArgs.Empty);
+                            ResetGame(this, EventArgs.Empty);
+                        }
+
+                        if (Raylib.IsKeyPressed(KeyboardKey.KEY_I))
+                        {
+                            OnBackButtonPressed(this, EventArgs.Empty);
+                            Raylib.PlaySound(explosions[0]);
+                            invincible = !invincible;
+                        }
+
+                        Raylib.EndDrawing();
+
+                        break;
+#endif
 
                 }
                 
@@ -204,130 +268,52 @@ namespace Avaruuspeli
             Raylib.CloseAudioDevice();
         }
 
-        /// <summary>
-        /// Alkuvalikon piirtäminen
-        /// </summary>
-        private void StartDraw()
-        {
-            Raylib.BeginDrawing();
-            Raylib.ClearBackground(Raylib.BLACK);
-            bg.Draw();
-
-            Font defaultFont = Raylib.GetFontDefault();
-
-            string title = "Space Invaders";
-
-            int titleSize = 100;
-
-            //int textWidth = Raylib.MeasureText(title, titleSize);
-
-            Vector2 titleTextSize = Raylib.MeasureTextEx(defaultFont, title, titleSize, 10);
-
-            string under = "Press ENTER";
-
-            int underSize = 50;
-
-            //int underTextWidth = Raylib.MeasureText(under, underSize);
-
-            Vector2 underTextSize = Raylib.MeasureTextEx(defaultFont, under, underSize, 10);
-
-            Vector2 titlePos = new Vector2((window_width / 2) - (titleTextSize.X / 2), window_height / 2 - (titleTextSize.Y / 2));
-
-            Vector2 underTextPos = new Vector2((window_width / 2) - (underTextSize.X / 2), titlePos.Y + titleTextSize.Y);
-
-            //Raylib.DrawText(text, window_width / 2 - (textSize / 2), window_height / 2, 100, Raylib.GREEN);
-            Raylib.DrawTextEx(defaultFont, title, titlePos, titleSize, 10, Raylib.GREEN);
-            Raylib.DrawTextEx(defaultFont, under, underTextPos, underSize, 10, Raylib.GREEN);
-
-            Raylib.EndDrawing();
-        }
-
-        private void StartUpdate()
-        {
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
-            {
-                state = GameState.Play;
-            }
-            bg.Update();
-        }
-
-        /// <summary>
-        /// ENTERiä painaessa aloitetaan peli uudestaan.
-        /// </summary>
-        private void ScoreUpdate()
-        {
-            if (Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
-            {
-                scoreCounter = 0;
-                timer = 0;
-                SpawnEnemies();
-
-                //reset bullets
-                foreach (Bullet bullet in bullets)
-                {
-                    if (bullet.active)
-                    {
-                        bullet.active = false;
-                    }
-                }
-
-                foreach (MovingText text in movingTexts)
-                {
-                    text.active = false;
-                }
-
-                Vector2 pos = new Vector2(window_width / 2, window_height - 80);
-
-                player.transform.position = pos;
-
-                nextEnemyShoot = Raylib.GetTime() + enemyShootDelay;
-
-                combo = 0;
-
-
-                state = GameState.Play;
-            }
-        }
-
-        /// <summary>
-        /// Pisteruudun piirtäminen
-        /// </summary>
-        private void ScoreDraw()
-        {
-            Raylib.BeginDrawing();
-            Raylib.ClearBackground(Raylib.BLACK);
-            Font defaultFont = Raylib.GetFontDefault();
-            string gameOver = "GAME OVER";
-            int gameOverSize = 100;
-            Vector2 gameOverTextSize = Raylib.MeasureTextEx(defaultFont, gameOver, gameOverSize, 10);
-            Vector2 gameOverPos = new Vector2((window_width / 2) - (gameOverTextSize.X / 2), window_height / 2 - (gameOverTextSize.Y / 2));
-
-            string score = $"Final score: {scoreCounter}";
-            int scoreSize = 50;
-            Vector2 scoreTextSize = Raylib.MeasureTextEx(defaultFont, score, scoreSize, 10);
-            Vector2 scorePos = new Vector2((window_width / 2) - (scoreTextSize.X / 2), gameOverPos.Y + gameOverTextSize.Y);
-
-            string retry = "ENTER to try again";
-            int retrysize = 20;
-            Vector2 retryTextSize = Raylib.MeasureTextEx(defaultFont, retry, retrysize, 10);
-            Vector2 retryPos = new Vector2((window_width / 2) - (retryTextSize.X / 2), scorePos.Y + scoreTextSize.Y * 1.5f);
-
-            Raylib.DrawTextEx(defaultFont, gameOver, gameOverPos, gameOverSize, 10, Raylib.GREEN);
-
-            Raylib.DrawTextEx(defaultFont, score, scorePos, scoreSize, 10, Raylib.BLUE);
-
-            Raylib.DrawTextEx(defaultFont, retry, retryPos, retrysize, 10, Raylib.GREEN);
-            Raylib.EndDrawing();
-        }
 
         private void Die()
         {
-            state = GameState.ScoreScreen;
             foreach (Enemy enemy in enemies)
             {
                 enemy.active = false;
             }
 
+            EndGame();
+
+        }
+
+        private void ResetGame(Object sender, EventArgs e)
+        {
+            scoreCounter = 0;
+            timer = 0;
+
+            foreach (Enemy enemy in enemies)
+            {
+                enemy.active = false;
+            }
+
+            //reset bullets
+            foreach (Bullet bullet in bullets)
+            {
+                if (bullet.active)
+                {
+                    bullet.active = false;
+                }
+            }
+
+            foreach (MovingText text in movingTexts)
+            {
+                text.active = false;
+            }
+
+            SpawnEnemies();
+
+            Vector2 pos = new Vector2(window_width / 2, window_height - 80);
+
+            player.transform.position = pos;
+
+            enemyShootTimer = 0;
+            player.ResetShootTimer();
+
+            combo = 0;
         }
 
         /// <summary>
@@ -403,7 +389,14 @@ namespace Avaruuspeli
             CheckCollisions();
             UpdateTexts();
 
-            
+#if DEBUG
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_F1))
+            {
+                stateStack.Push(GameState.Cheat);
+
+            }
+
+#endif
 
             bg.Update();
 
@@ -418,6 +411,11 @@ namespace Avaruuspeli
                 Raylib.PlaySound(shootSounds[0]);
             }
             KeepInBounds(player.transform, player.collision, 0, 0, window_width, window_height);
+
+            if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
+            {
+                stateStack.Push(GameState.Pause);
+            }
 
         }
 
@@ -468,7 +466,8 @@ namespace Avaruuspeli
         /// </summary>
         void EnemyShoots()
         {
-            if (Raylib.GetTime() > nextEnemyShoot)
+            enemyShootTimer += Raylib.GetFrameTime();
+            if (enemyShootTimer >= enemyShootDelay)
             {
                 Random rand = new Random();
 
@@ -480,7 +479,7 @@ namespace Avaruuspeli
                     {
                         ShootBullet(enemies[enemyIndex].transform, enemies[enemyIndex].collision, new Vector2(0, 1), 500, 20, false);
                         ammuttu = true;
-                        nextEnemyShoot = Raylib.GetTime() + enemyShootDelay;
+                        enemyShootTimer = 0;
                         Raylib.PlaySound(shootSounds[1]);
                     }
                 }
@@ -542,26 +541,32 @@ namespace Avaruuspeli
                                 {
                                     SpawnComboText(combo, 0.5f, enemy.transform.position);
                                 }
-                                Console.WriteLine(scoreCounter);
 
                                 Raylib.PlaySound(explosions[0]);
 
                                 if (CountActiveEnemies() == 0)
                                 {
-                                    state = GameState.ScoreScreen;
-
                                     CalculateTimeScore();
+                                    EndGame();
                                 }
                             }
                         }
                         else if (bullet.active)
                         {
+
+
                             Rectangle bulletRec = GetRectangle(bullet.transform, bullet.collision);
 
                             Rectangle playerRec = GetRectangle(player.transform, player.collision);
 
                             if (Raylib.CheckCollisionRecs(bulletRec, playerRec))
                             {
+#if DEBUG
+                                if (invincible)
+                                {
+                                    return;
+                                }
+#endif
                                 Raylib.PlaySound(explosions[1]);
                                 Die();
                             }
@@ -672,7 +677,6 @@ namespace Avaruuspeli
                 MovingText combo = new MovingText(comboText, position, new Vector2(0, -1), 20, lifeTime, colors[colorIndex], 20);
                 movingTexts.Add(combo);
             }
-            Console.WriteLine($"text list {movingTexts.Count()}");
         }
 
         /// <summary>
@@ -728,6 +732,33 @@ namespace Avaruuspeli
             return rec;
         }
 
+        void EndGame()
+        {
+            stateStack.Push(GameState.ScoreScreen);
+            scoreScreen.finalScore = scoreCounter;
+        }
+
+        void OnStartButtonPressed(Object sender, EventArgs e)
+        {
+            stateStack.Push(GameState.Play);
+        }
+
+        void OnBackButtonPressed(Object sender, EventArgs e)
+        {
+            stateStack.Pop();
+        }
+
+        void OnOptionsPressed(Object sender, EventArgs e)
+        {
+            stateStack.Push(GameState.Options);
+        }
+
+        void OnMainMenuPressed(Object sender, EventArgs e)
+        {
+            stateStack.Clear();
+            stateStack.Push(GameState.Start);
+        }
+
         /// <summary>
         /// Pelin tilanteet.
         /// </summary>
@@ -735,6 +766,11 @@ namespace Avaruuspeli
         {
             Start,
             Play,
+            Pause,
+            Options,
+#if DEBUG
+            Cheat,
+#endif
             ScoreScreen
         }
     }

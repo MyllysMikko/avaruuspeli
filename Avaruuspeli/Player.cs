@@ -10,7 +10,7 @@ namespace Avaruuspeli
         public CollisionComponent collision { get; private set; }
 
         float shootDelay = 1f;
-        double nextShoot = 0;
+        double shootTimer = 0;
 
         Texture playerImage;
 
@@ -35,6 +35,8 @@ namespace Avaruuspeli
 
         public bool Update()
         {
+            shootTimer += Raylib.GetFrameTime();
+
             if (Raylib.IsKeyDown(KeyboardKey.KEY_A))
             {
                 transform.position.X -= transform.speed * Raylib.GetFrameTime();
@@ -44,14 +46,19 @@ namespace Avaruuspeli
                 transform.position.X += transform.speed * Raylib.GetFrameTime();
             }
 
-            if (Raylib.IsKeyDown(KeyboardKey.KEY_SPACE) && Raylib.GetTime() > nextShoot)
+            if (Raylib.IsKeyDown(KeyboardKey.KEY_SPACE) && shootTimer >= shootDelay)
             {
-                nextShoot = Raylib.GetTime() + shootDelay;
+                shootTimer = 0;
 
                 return true;
             }
 
             return false;
+        }
+
+        public void ResetShootTimer()
+        {
+            shootTimer = 0;
         }
     }
 }
