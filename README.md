@@ -4,6 +4,7 @@
 Made in C# with Raylib_cslo. Sprites are from kenney.nl
 
 HOW TO PLAY:
+
 A & D: Move Left and Right.
 
 Space: Shoot
