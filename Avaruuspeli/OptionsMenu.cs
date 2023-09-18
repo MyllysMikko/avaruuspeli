@@ -11,6 +11,7 @@ namespace Avaruuspeli
     {
         MenuCreator mc = new MenuCreator();
         public EventHandler BackPressed;
+        float volume = 1.0f;
 
         public void Draw()
         {
@@ -31,10 +32,14 @@ namespace Avaruuspeli
 
             mc.Label("Options");
 
+            volume = mc.Slider("volume", "0", "1", volume, 0, 1);
+            Raylib.SetMasterVolume(volume);
+
             if (mc.Button("Back"))
             {
                 BackPressed.Invoke(this, EventArgs.Empty);
             }
+
 
 
             Raylib.EndDrawing();

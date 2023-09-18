@@ -17,18 +17,20 @@ namespace Avaruuspeli
 
         public void StartMenu(float x, float y, float width, float height, float between)
         {
-            this.x = x;
-            this.y = y;
             this.width = width;
             this.height = height;
             this.between = between;
+            this.x = x - width * 0.5f;
+            this.y = y - height * 0.5f;
+
         }
 
         public bool Button(string text)
         {
 
 
-            bool input = RayGui.GuiButton(new Rectangle(x - width * 0.5f, y - height * 0.5f, width, height), text);
+            //bool input = RayGui.GuiButton(new Rectangle(x - width * 0.5f, y - height * 0.5f, width, height), text);
+            bool input = RayGui.GuiButton(new Rectangle(x , y, width, height), text);
             y += height + between;
 
             return input;
@@ -36,9 +38,23 @@ namespace Avaruuspeli
 
         public void Label(string text)
         {
-            RayGui.GuiLabel(new Rectangle(x - width * 0.5f, y - height * 0.5f, width, height), text);
+            //RayGui.GuiLabel(new Rectangle(x - width * 0.5f, y - height * 0.5f, width, height), text);
+            RayGui.GuiLabel(new Rectangle(x, y, width, height), text);
             y += height + between;
+            x += 10;
         }
+
+        public float Slider(string label, string min, string max, float value,  float minVal, float maxVal)
+        {
+            RayGui.GuiLabel(new Rectangle(x, y, width, height), label);
+            y += height;
+            value = RayGui.GuiSlider(new Rectangle(x, y, width * 2, height), min, max, value, minVal, maxVal);
+            y += height + between;
+
+            return value;
+        }
+
+
 
     }
 }

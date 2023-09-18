@@ -12,7 +12,6 @@ namespace Avaruuspeli
     {
         MenuCreator mc = new MenuCreator();
         public EventHandler StartPressed;
-        public EventHandler QuitPressed;
         public EventHandler OptionsPressed;
 
         public void Draw()

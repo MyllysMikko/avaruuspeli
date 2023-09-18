@@ -36,7 +36,6 @@ namespace Avaruuspeli
 
         Player player;
         List<Bullet> bullets;
-        List<Bullet> enemyBullets;
 
         List<Enemy> enemies;
 
@@ -114,9 +113,6 @@ namespace Avaruuspeli
             scoreScreen.BackPressed += OnBackButtonPressed;
             scoreScreen.BackPressed += ResetGame;
             scoreScreen.MainMenuPressed += OnMainMenuPressed;
-
-            
-
 
 
         }
