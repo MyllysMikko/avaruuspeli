@@ -41,19 +41,28 @@ namespace Avaruuspeli
             //RayGui.GuiLabel(new Rectangle(x - width * 0.5f, y - height * 0.5f, width, height), text);
             RayGui.GuiLabel(new Rectangle(x, y, width, height), text);
             y += height + between;
-            x += 10;
+
         }
 
-        public float Slider(string label, string min, string max, float value,  float minVal, float maxVal)
+        public float SliderBar(string label, string min, string max, float value,  float minVal, float maxVal)
         {
             RayGui.GuiLabel(new Rectangle(x, y, width, height), label);
+            x += 10;
             y += height;
-            value = RayGui.GuiSlider(new Rectangle(x, y, width * 2, height), min, max, value, minVal, maxVal);
+            value = RayGui.GuiSliderBar(new Rectangle(x, y, width * 2, height), min, max, value, minVal, maxVal);
             y += height + between;
+
+            x -= 10;
 
             return value;
         }
 
+        public unsafe int Spinner(string text, int* spinnerValue, int min, int max, bool spinnerActive)
+        {
+            RayGui.GuiSpinner(new Rectangle(x, y, width, height), text, spinnerValue, min, max, spinnerActive);
+
+            return 0;
+        }
 
 
     }

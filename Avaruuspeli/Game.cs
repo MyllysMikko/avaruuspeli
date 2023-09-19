@@ -71,6 +71,7 @@ namespace Avaruuspeli
         {
             stateStack.Push(GameState.Start);
             Raylib.InitWindow(window_width, window_height, "Avaruuspeli");
+            Raylib.SetMasterVolume(optionsMenu.volume);
 
             Texture playerImage = Raylib.LoadTexture("data/images/playerShip1_orange.png");
             Vector2 playerStart = new Vector2(window_width / 2, window_height - 80);
