@@ -48,7 +48,9 @@ namespace Avaruuspeli
 
         int scoreCounter = 0;
 
-        float timer;
+        float timer = 0;
+
+        int enemiesKilled = 0;
 
         int combo = 0;
 
@@ -99,7 +101,6 @@ namespace Avaruuspeli
             explosions[0] = Raylib.LoadSound("data/sound/explosion.wav");
             explosions[1] = Raylib.LoadSound("data/sound/playerExplodes.wav");
 
-            timer = 0;
 
             Raylib.SetExitKey(KeyboardKey.KEY_NULL);
             RayGui.GuiLoadStyle("data/styles/style.rgs");
@@ -196,7 +197,7 @@ namespace Avaruuspeli
                         break;
 
                     case GameState.Pause:
-                        pauseMenu.Draw();
+                        pauseMenu.Draw(timer, enemiesKilled);
                         break;
 
                     case GameState.Options:
@@ -279,6 +280,7 @@ namespace Avaruuspeli
         {
             scoreCounter = 0;
             timer = 0;
+            enemiesKilled = 0;
 
             foreach (Enemy enemy in enemies)
             {
@@ -531,6 +533,8 @@ namespace Avaruuspeli
                                 enemy.active = false;
                                 bullet.active = false;
                                 combo++;
+                                enemiesKilled++;
+                                
                                 scoreCounter += enemy.scoreValue * combo;
                                 if (combo > 1)
                                 {

@@ -57,11 +57,13 @@ namespace Avaruuspeli
             return value;
         }
 
-        public unsafe int Spinner(string text, int* spinnerValue, int min, int max, bool spinnerActive)
+        public unsafe bool Spinner(string text, int* spinnerValue, int min, int max, bool spinnerActive)
         {
-            RayGui.GuiSpinner(new Rectangle(x, y, width, height), text, spinnerValue, min, max, spinnerActive);
+            bool edit = RayGui.GuiSpinner(new Rectangle(x, y, width, height), text, spinnerValue, min, max, spinnerActive);
+            y += height + between;
 
-            return 0;
+            return edit;
+
         }
 
 

@@ -12,10 +12,14 @@ namespace Avaruuspeli
         MenuCreator mc = new MenuCreator();
         public EventHandler BackPressed;
         public float volume = 1.0f;
+        public int spinnerValue = 0;
+        bool spinnerEdit;
 
-        public void Draw()
+        public unsafe void Draw()
         {
 
+            // En tiedä miksi ei toimi ilman apumuuttujaa, mutta en jaksa ottaa selvää. Jos toimii niin toimii.
+            int spinnerValue2 = spinnerValue;
 
             Raylib.BeginDrawing();
             Raylib.ClearBackground(Raylib.BLACK);
@@ -34,6 +38,13 @@ namespace Avaruuspeli
 
 
             volume = mc.SliderBar($"volume {volume * 100:0}", "Silent", "Max", volume, 0, 1);
+
+            if (mc.Spinner("Testi", &spinnerValue2, 0, 10, spinnerEdit))
+            {
+                spinnerEdit = !spinnerEdit;
+            }
+
+            spinnerValue = spinnerValue2;
 
             if (mc.Button("Back"))
             {
