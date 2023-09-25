@@ -57,6 +57,19 @@ namespace Avaruuspeli
             return value;
         }
 
+        public float Slider(string label, string min, string max, float value, float minVal, float maxVal)
+        {
+            RayGui.GuiLabel(new Rectangle(x, y, width, height), label);
+            x += 10;
+            y += height;
+            value = RayGui.GuiSlider(new Rectangle(x, y, width * 2, height), min, max, value, minVal, maxVal);
+            y += height + between;
+
+            x -= 10;
+
+            return value;
+        }
+
         public unsafe bool Spinner(string text, int* spinnerValue, int min, int max, bool spinnerActive)
         {
             bool edit = RayGui.GuiSpinner(new Rectangle(x, y, width, height), text, spinnerValue, min, max, spinnerActive);

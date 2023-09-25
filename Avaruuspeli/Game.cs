@@ -239,27 +239,48 @@ namespace Avaruuspeli
 
                         Raylib.BeginDrawing();
 
-                        Raylib.DrawText("R: Reset game", 0, 0, 100, Raylib.GREEN);
+                        mc.StartMenu(100, 100, 100, 100, 10);
 
-                        Raylib.DrawText("I: Invincibility", 0, 100, 100, Raylib.GREEN);
+                        if (mc.Button("Reset Game"))
+                        {
+                            OnBackButtonPressed(this, EventArgs.Empty);
+                            ResetGame(this, EventArgs.Empty);
+                        }
+
+                        if (mc.Button("Invincibility"))
+                        {
+                            OnBackButtonPressed(this, EventArgs.Empty);
+                            Raylib.PlaySound(explosions[0]);
+                            invincible = !invincible;
+                        }
+
+                        player.shootDelay = mc.Slider("ShootDelay", "0.5", "2", player.shootDelay, 0.5f, 2);
+
+                        //Raylib.DrawText("R: Reset game", 0, 0, 100, Raylib.GREEN);
+
+                        //Raylib.DrawText("I: Invincibility", 0, 100, 100, Raylib.GREEN);
 
                         if (Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
                         {
                             stateStack.Pop();
                         }
 
+                        /*
                         if (Raylib.IsKeyPressed(KeyboardKey.KEY_R))
                         {
                             OnBackButtonPressed(this, EventArgs.Empty);
                             ResetGame(this, EventArgs.Empty);
                         }
+                        */
 
+                        /*
                         if (Raylib.IsKeyPressed(KeyboardKey.KEY_I))
                         {
                             OnBackButtonPressed(this, EventArgs.Empty);
                             Raylib.PlaySound(explosions[0]);
                             invincible = !invincible;
                         }
+                        */
 
                         Raylib.EndDrawing();
 

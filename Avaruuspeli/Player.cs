@@ -9,7 +9,7 @@ namespace Avaruuspeli
         public TransformComponent transform { get; private set; }
         public CollisionComponent collision { get; private set; }
 
-        float shootDelay = 1f;
+        public float shootDelay = 1f;
         double shootTimer = 0;
 
         Texture playerImage;
