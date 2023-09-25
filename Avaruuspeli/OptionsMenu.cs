@@ -12,8 +12,8 @@ namespace Avaruuspeli
         MenuCreator mc = new MenuCreator();
         public EventHandler BackPressed;
         public float volume = 1.0f;
-        public int spinnerValue = 0;
-        bool spinnerEdit;
+        public int spinnerValue = 1;
+        bool spinnerEdit = false;
 
         public unsafe void Draw()
         {
@@ -39,7 +39,7 @@ namespace Avaruuspeli
 
             volume = mc.SliderBar($"volume {volume * 100:0}", "Silent", "Max", volume, 0, 1);
 
-            if (mc.Spinner("Testi", &spinnerValue2, 0, 10, spinnerEdit))
+            if (mc.Spinner("Difficulty", &spinnerValue2, 1, 3, spinnerEdit))
             {
                 spinnerEdit = !spinnerEdit;
             }

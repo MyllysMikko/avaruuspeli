@@ -29,6 +29,8 @@ namespace Avaruuspeli
         int minScore = 10;
         int enemySpeed = 150;
 
+
+
         float enemyShootDelay = 1;
         double enemyShootTimer = 0;
 
@@ -111,6 +113,8 @@ namespace Avaruuspeli
             pauseMenu.BackPressed += OnBackButtonPressed;
             pauseMenu.MainMenuPressed += OnMainMenuPressed;
             pauseMenu.OptionsPressed += OnOptionsPressed;
+            pauseMenu.RestartPressed += OnBackButtonPressed;
+            pauseMenu.RestartPressed += ResetGame;
             optionsMenu.BackPressed += OnBackButtonPressed;
             scoreScreen.BackPressed += OnBackButtonPressed;
             scoreScreen.BackPressed += ResetGame;
@@ -129,7 +133,28 @@ namespace Avaruuspeli
             int currentX = startX;
             int currentY = startY;
 
-            
+            switch (optionsMenu.spinnerValue)
+            {
+                case (1):
+                    rows = 3;
+                    enemyShootDelay = 1;
+                    break;
+
+                case (2):
+                    rows = 4;
+                    enemyShootDelay = 0.8f;
+                    break;
+
+                case (3):
+                    rows = 5;
+                    enemyShootDelay = 0.5f;
+                    break;
+
+                default:
+                    break;
+            }
+
+
 
             for (int row = 0; row < rows; row++)
             {
@@ -206,6 +231,7 @@ namespace Avaruuspeli
 
                     case GameState.ScoreScreen:
                         scoreScreen.Draw();
+                        Console.WriteLine(stateStack.Count);
                         break;
 
 #if DEBUG
@@ -425,15 +451,20 @@ namespace Avaruuspeli
             bool changeDir = false;
             foreach (Enemy enemy in enemies)
             {
-                if (enemy.transform.position.Y + enemy.collision.size.Y >= player.transform.position.Y)
+                if (enemy.active)
                 {
-                    Die();
-                }
 
-                enemy.Update();
-                if (KeepInBounds(enemy.transform, enemy.collision, 0, 0, window_width, window_height))
-                {
-                    changeDir = true;
+
+                    if (enemy.transform.position.Y + enemy.collision.size.Y >= player.transform.position.Y)
+                    {
+                        Die();
+                    }
+
+                    enemy.Update();
+                    if (KeepInBounds(enemy.transform, enemy.collision, 0, 0, window_width, window_height))
+                    {
+                        changeDir = true;
+                    }
                 }
             }
 

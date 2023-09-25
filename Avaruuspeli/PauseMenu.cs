@@ -14,6 +14,7 @@ namespace Avaruuspeli
 
         public EventHandler BackPressed;
         public EventHandler OptionsPressed;
+        public EventHandler RestartPressed;
         public EventHandler MainMenuPressed;
 
         public float timer;
@@ -48,6 +49,10 @@ namespace Avaruuspeli
             if (mc.Button("Options"))
             {
                 OptionsPressed.Invoke(this, EventArgs.Empty);
+            }
+            if (mc.Button("Restart Game"))
+            {
+                RestartPressed.Invoke(this, EventArgs.Empty);
             }
             if (mc.Button("Main Menu"))
             {
