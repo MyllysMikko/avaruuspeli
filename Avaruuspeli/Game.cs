@@ -14,6 +14,8 @@ namespace Avaruuspeli
         OptionsMenu optionsMenu = new OptionsMenu();
         ScoreScreen scoreScreen = new ScoreScreen();
 
+        SaveManager saveManager = new SaveManager();
+
 
 
         //GameState state;
@@ -49,6 +51,8 @@ namespace Avaruuspeli
         Sound[] explosions = new Sound[2];
 
         int scoreCounter = 0;
+        int highScore = 0;
+
 
         float timer = 0;
 
@@ -73,6 +77,9 @@ namespace Avaruuspeli
         /// </summary>
         void Init()
         {
+            saveManager.LoadFromFile();
+            highScore = saveManager.GetHighScore();
+
             stateStack.Push(GameState.Start);
             Raylib.InitWindow(window_width, window_height, "Avaruuspeli");
             Raylib.SetMasterVolume(optionsMenu.volume);
@@ -785,6 +792,12 @@ namespace Avaruuspeli
 
         void EndGame()
         {
+
+            if (scoreCounter > highScore)
+            {
+                saveManager.SaveToFile(scoreCounter);
+            }
+
             stateStack.Push(GameState.ScoreScreen);
             scoreScreen.finalScore = scoreCounter;
         }
