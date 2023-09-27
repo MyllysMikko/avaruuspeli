@@ -17,6 +17,7 @@ namespace Avaruuspeli
         public EventHandler MainMenuPressed;
 
         public int finalScore = 0;
+        public int highScore = 0;
 
         public void Draw()
         {
@@ -39,10 +40,18 @@ namespace Avaruuspeli
             Vector2 scoreTextSize = Raylib.MeasureTextEx(defaultFont, score, scoreSize, 10);
             Vector2 scorePos = new Vector2((window_width / 2) - (scoreTextSize.X / 2), gameOverPos.Y + gameOverTextSize.Y);
 
+            string highScoreText = $"Highscore: {highScore}";
+            int highScoreSize = 50;
+            Vector2 highScoreTextSize = Raylib.MeasureTextEx(defaultFont, highScoreText, highScoreSize, 10);
+            Vector2 highScorePos = new Vector2((window_width * 0.5f) - (highScoreTextSize.X * 0.5f), scorePos.Y + scoreTextSize.Y);
+
+
 
             Raylib.DrawTextEx(defaultFont, gameOver, gameOverPos, gameOverSize, 10, Raylib.GREEN);
 
             Raylib.DrawTextEx(defaultFont, score, scorePos, scoreSize, 10, Raylib.BLUE);
+
+            Raylib.DrawTextEx(defaultFont, highScoreText, highScorePos, highScoreSize, 10, Raylib.RED);
 
 
             float x = Raylib.GetScreenWidth() * 0.5f;
@@ -51,7 +60,7 @@ namespace Avaruuspeli
             float menuHeight = 40;
             float between = 10;
 
-            mc.StartMenu(x, scorePos.Y + scoreTextSize.Y * 2f, menuWidth, menuHeight, between);
+            mc.StartMenu(x, scorePos.Y + scoreTextSize.Y * 3f, menuWidth, menuHeight, between);
 
             if (mc.Button("Retry"))
             {

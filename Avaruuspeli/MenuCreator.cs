@@ -29,7 +29,6 @@ namespace Avaruuspeli
         {
 
 
-            //bool input = RayGui.GuiButton(new Rectangle(x - width * 0.5f, y - height * 0.5f, width, height), text);
             bool input = RayGui.GuiButton(new Rectangle(x , y, width, height), text);
             y += height + between;
 
@@ -38,7 +37,6 @@ namespace Avaruuspeli
 
         public void Label(string text)
         {
-            //RayGui.GuiLabel(new Rectangle(x - width * 0.5f, y - height * 0.5f, width, height), text);
             RayGui.GuiLabel(new Rectangle(x, y, width, height), text);
             y += height + between;
 
