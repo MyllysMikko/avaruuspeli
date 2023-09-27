@@ -11,5 +11,7 @@ Space: Shoot
 
 Esc: Pause
 
-Enemies in the backrow give 40 points, the ones in the middle give 30, and the ones in the front give 20. Each consecutive hit increases your combo.
-Score from killing an enemy is multiplied by your combo. Missing an enemy resets your combo.
+The ammount of enemies, and their rate of fire is determined by the difficulty option. Enemies in the last row give 40 points upon death. Each row after that give 10 less points, to a minimum of 10 points.
+Example: With 3 rows of enemies, the first row gives 20 points, second give 30, and the last one gives 40.
+
+Each consecutive hit increases your combo. Points gained from killing enemies are multiplied by your combo. Missing a shot resets your combo.
