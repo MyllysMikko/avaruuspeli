@@ -1,7 +1,7 @@
 # Avaruuspeli
 
 2D Space Invaders clone.
-Made in C# with Raylib_cslo. Sprites are from kenney.nl
+Made in C# with Raylib-CsLo. Sprites are from kenney.nl
 
 HOW TO PLAY:
 
