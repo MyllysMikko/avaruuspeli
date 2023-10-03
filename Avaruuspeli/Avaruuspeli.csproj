@@ -47,6 +47,9 @@
     <None Update="data\styles\style.rgs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Logs\Logs.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Styles\style.rgs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

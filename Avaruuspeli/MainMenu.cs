@@ -37,13 +37,6 @@ namespace Avaruuspeli
             {
                 OptionsPressed.Invoke(this, EventArgs.Empty);
             }
-
-#if DEBUG
-            if (mc.Button("Load"))
-            {
-                saveManager.LoadFromFile();
-            }
-#endif
             if (mc.Button("Quit Game"))
             {
                 Raylib.CloseWindow();

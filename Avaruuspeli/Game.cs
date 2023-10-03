@@ -8,6 +8,7 @@ namespace Avaruuspeli
     /// </summary>
     class Game
     {
+        LogsManager logsManager = new LogsManager();
         MenuCreator mc = new MenuCreator();
         MainMenu mainMenu = new MainMenu();
         PauseMenu pauseMenu = new PauseMenu();
@@ -127,6 +128,7 @@ namespace Avaruuspeli
             scoreScreen.BackPressed += ResetGame;
             scoreScreen.MainMenuPressed += OnMainMenuPressed;
 
+            logsManager.Log("Initialization", LogsManager.LogLevel.SUCCESS);
 
         }
 
@@ -204,6 +206,8 @@ namespace Avaruuspeli
                 currentY += playerSize;
 
             }
+
+            logsManager.Log("Enemies Spawned", LogsManager.LogLevel.SUCCESS);
         }
 
 
@@ -297,6 +301,8 @@ namespace Avaruuspeli
             }
 
             Raylib.CloseAudioDevice();
+
+            logsManager.Log("Game closed", LogsManager.LogLevel.SUCCESS);
         }
 
 
@@ -307,12 +313,15 @@ namespace Avaruuspeli
                 enemy.active = false;
             }
 
+            logsManager.Log("Player died", LogsManager.LogLevel.SUCCESS);
+
             EndGame();
 
         }
 
         private void ResetGame(Object sender, EventArgs e)
         {
+            logsManager.Log("Resetting game", LogsManager.LogLevel.INFO);
             scoreCounter = 0;
             timer = 0;
             enemiesKilled = 0;
@@ -346,6 +355,7 @@ namespace Avaruuspeli
             player.ResetShootTimer();
 
             combo = 0;
+            logsManager.Log("Game reset", LogsManager.LogLevel.SUCCESS);
         }
 
         /// <summary>
@@ -439,6 +449,7 @@ namespace Avaruuspeli
         {
             if (player.Update())
             {
+                logsManager.Log("Player shoots", LogsManager.LogLevel.INFO);
                 ShootBullet(player.transform, player.collision, new Vector2(0, -1), 500, 20, true);
                 Raylib.PlaySound(shootSounds[0]);
             }
@@ -514,6 +525,7 @@ namespace Avaruuspeli
                     int enemyIndex = rand.Next(enemies.Count);
                     if (enemies[enemyIndex].active)
                     {
+                        logsManager.Log("Enemy shoots", LogsManager.LogLevel.INFO);
                         ShootBullet(enemies[enemyIndex].transform, enemies[enemyIndex].collision, new Vector2(0, 1), 500, 20, false);
                         ammuttu = true;
                         enemyShootTimer = 0;
@@ -570,8 +582,10 @@ namespace Avaruuspeli
 
                             if (Raylib.CheckCollisionRecs(bulletRec, enemyRec))
                             {
-                                enemy.active = false;
                                 bullet.active = false;
+                                KillEnemy(enemy);
+                                /*
+                                enemy.active = false;
                                 combo++;
                                 enemiesKilled++;
                                 
@@ -588,6 +602,7 @@ namespace Avaruuspeli
                                     CalculateTimeScore();
                                     EndGame();
                                 }
+                                */
                             }
                         }
                         else if (bullet.active)
@@ -613,6 +628,29 @@ namespace Avaruuspeli
                     }
                 }
             }
+        }
+
+        void KillEnemy(Enemy enemy)
+        {
+            enemy.active = false;
+            combo++;
+            enemiesKilled++;
+
+            scoreCounter += enemy.scoreValue * combo;
+            if (combo > 1)
+            {
+                SpawnComboText(combo, 0.5f, enemy.transform.position);
+            }
+
+            Raylib.PlaySound(explosions[0]);
+
+            if (CountActiveEnemies() == 0)
+            {
+                CalculateTimeScore();
+                EndGame();
+            }
+
+            logsManager.Log("Enemy killed", LogsManager.LogLevel.SUCCESS);
         }
 
         /// <summary>
@@ -645,32 +683,45 @@ namespace Avaruuspeli
         /// <param name="playerBullet">Onko tämä pelaajan (true) vai vihollisen (false) luoti?</param>
         void ShootBullet(TransformComponent transform, CollisionComponent collision, Vector2 dir, float speed, int size, bool playerBullet)
         {
-            Texture bulletText;
-            if (playerBullet)
+            // Try catch ehkä hieman turha tässä kohtaa.
+            try
             {
-                bulletText = bulletImage[0];
-            }
-            else
-            {
-                bulletText = bulletImage[1];
-            }
-
-            foreach (Bullet bullet in bullets)
-            {
-                if (bullet.active == false)
+                Texture bulletText;
+                if (playerBullet)
                 {
-                    bullet.Reset(transform.position, dir, speed, size, playerBullet);
-                    ResetBulletPos(bullet, transform, collision);
-                    bullet.bulletImage = bulletText;
-                    return;
+                    bulletText = bulletImage[0];
                 }
+                else
+                {
+                    bulletText = bulletImage[1];
+                }
+
+                foreach (Bullet bullet in bullets)
+                {
+                    if (bullet.active == false)
+                    {
+                        bullet.Reset(transform.position, dir, speed, size, playerBullet);
+                        ResetBulletPos(bullet, transform, collision);
+                        bullet.bulletImage = bulletText;
+                        logsManager.Log("Bullet shot", LogsManager.LogLevel.SUCCESS);
+                        return;
+                    }
+                }
+
+
+
+                Bullet newBullet = new Bullet(transform.position, dir, speed, size, bulletText, playerBullet);
+                ResetBulletPos(newBullet, transform, collision);
+                bullets.Add(newBullet);
+
+                logsManager.Log("Bullet shot", LogsManager.LogLevel.SUCCESS);
             }
+            catch (Exception)
+            {
+                logsManager.Log("Bullet couldn't be shot", LogsManager.LogLevel.ERROR);
+            }
+            
 
-
-
-            Bullet newBullet = new Bullet(transform.position, dir, speed, size, bulletText, playerBullet);
-            ResetBulletPos(newBullet, transform, collision);
-            bullets.Add(newBullet);
 
 
         }
@@ -805,6 +856,7 @@ namespace Avaruuspeli
             stateStack.Clear();
             stateStack.Push(GameState.Start);
         }
+
 
         /// <summary>
         /// Pelin tilanteet.

@@ -25,6 +25,10 @@ namespace Avaruuspeli
 
         public void LoadFromFile()
         {
+            if (!File.Exists("data/Save.txt"))
+            {
+                SaveToFile(0);
+            }
             string json = File.ReadAllText("data/Save.txt");
             save = JsonConvert.DeserializeObject<Save>(json);
             Console.WriteLine(save.highScore);
