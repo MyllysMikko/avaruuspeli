@@ -12,7 +12,7 @@ namespace Avaruuspeli
         Save save = new Save();
 
 
-        public void SaveToFile(int highScore)
+        public void SaveScoreToFile(int highScore)
         {
 
             save.highScore = highScore;
@@ -23,11 +23,20 @@ namespace Avaruuspeli
             Console.WriteLine(json);
         }
 
+        public void SaveStatsToFile(int enemiesKilled, float timeAlive)
+        {
+            save.enemiesKilled += enemiesKilled;
+            save.timeAlive += timeAlive;
+            string json = JsonConvert.SerializeObject(save);
+
+            File.WriteAllText("data/Save.txt", json);
+        }
+
         public void LoadFromFile()
         {
             if (!File.Exists("data/Save.txt"))
             {
-                SaveToFile(0);
+                SaveScoreToFile(0);
             }
             string json = File.ReadAllText("data/Save.txt");
             save = JsonConvert.DeserializeObject<Save>(json);
@@ -37,6 +46,16 @@ namespace Avaruuspeli
         public int GetHighScore()
         {
             return save.highScore;
+        }
+
+        public float GetTimeAlive()
+        {
+            return save.timeAlive;
+        }
+
+        public int GetEnemiesKilled()
+        {
+            return save.enemiesKilled;
         }
 
     }

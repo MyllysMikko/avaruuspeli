@@ -9,6 +9,8 @@ namespace Avaruuspeli
     public class Save
     {
         public int highScore = 0;
+        public int enemiesKilled = 0;
+        public float timeAlive = 0;
 
     }
 }

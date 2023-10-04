@@ -233,7 +233,7 @@ namespace Avaruuspeli
                         break;
 
                     case GameState.Pause:
-                        pauseMenu.Draw(timer, enemiesKilled);
+                        pauseMenu.Draw(timer + saveManager.GetTimeAlive(), enemiesKilled + saveManager.GetEnemiesKilled());
                         break;
 
                     case GameState.Options:
@@ -584,25 +584,7 @@ namespace Avaruuspeli
                             {
                                 bullet.active = false;
                                 KillEnemy(enemy);
-                                /*
-                                enemy.active = false;
-                                combo++;
-                                enemiesKilled++;
-                                
-                                scoreCounter += enemy.scoreValue * combo;
-                                if (combo > 1)
-                                {
-                                    SpawnComboText(combo, 0.5f, enemy.transform.position);
-                                }
 
-                                Raylib.PlaySound(explosions[0]);
-
-                                if (CountActiveEnemies() == 0)
-                                {
-                                    CalculateTimeScore();
-                                    EndGame();
-                                }
-                                */
                             }
                         }
                         else if (bullet.active)
@@ -827,9 +809,11 @@ namespace Avaruuspeli
 
             if (scoreCounter > highScore)
             {
-                saveManager.SaveToFile(scoreCounter);
+                saveManager.SaveScoreToFile(scoreCounter);
                 highScore = scoreCounter;
             }
+
+            saveManager.SaveStatsToFile(enemiesKilled, timer);
 
             stateStack.Push(GameState.ScoreScreen);
             scoreScreen.finalScore = scoreCounter;
