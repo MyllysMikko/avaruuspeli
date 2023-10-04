@@ -83,7 +83,6 @@ namespace Avaruuspeli
 
             stateStack.Push(GameState.Start);
             Raylib.InitWindow(window_width, window_height, "Avaruuspeli");
-            Raylib.SetMasterVolume(optionsMenu.volume);
 
             Texture playerImage = Raylib.LoadTexture("data/images/playerShip1_orange.png");
             Vector2 playerStart = new Vector2(window_width / 2, window_height - 80);
@@ -106,6 +105,7 @@ namespace Avaruuspeli
 
 
             Raylib.InitAudioDevice();
+            Raylib.SetMasterVolume(optionsMenu.volume);
             shootSounds[0] = Raylib.LoadSound("data/sound/Pshoot.wav");
             shootSounds[1] = Raylib.LoadSound("data/sound/Eshoot.wav");
             explosions[0] = Raylib.LoadSound("data/sound/explosion.wav");

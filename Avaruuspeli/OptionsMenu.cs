@@ -1,4 +1,5 @@
-﻿using Raylib_CsLo;
+﻿using Newtonsoft.Json;
+using Raylib_CsLo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,11 @@ namespace Avaruuspeli
         public float volume = 1.0f;
         public int spinnerValue = 1;
         bool spinnerEdit = false;
+
+        public OptionsMenu()
+        {
+            LoadOptionsFromFile();
+        }
 
         public unsafe void Draw()
         {
@@ -49,12 +55,33 @@ namespace Avaruuspeli
             if (mc.Button("Back"))
             {
                 Raylib.SetMasterVolume(volume);
+                SaveOptionsToFile();
                 BackPressed.Invoke(this, EventArgs.Empty);
             }
 
 
 
             Raylib.EndDrawing();
+        }
+
+        public void LoadOptionsFromFile()
+        {
+            if (!File.Exists("data/Options.txt"))
+            {
+                SaveOptionsToFile();
+            }
+            string json = File.ReadAllText("data/Options.txt");
+            volume = JsonConvert.DeserializeObject<float>(json);
+        }
+
+        public void SaveOptionsToFile()
+        {
+
+            string json = JsonConvert.SerializeObject(volume);
+
+
+            File.WriteAllText("data/Options.txt", json);
+            Console.WriteLine(json);
         }
     }
 }
