@@ -11,7 +11,6 @@ namespace Avaruuspeli
     {
         Save save = new Save();
 
-
         public void SaveScoreToFile(int highScore)
         {
 
@@ -20,7 +19,6 @@ namespace Avaruuspeli
 
 
             File.WriteAllText("data/Save.txt", json);
-            Console.WriteLine(json);
         }
 
         public void SaveStatsToFile(int enemiesKilled, float timeAlive)
@@ -32,6 +30,9 @@ namespace Avaruuspeli
             File.WriteAllText("data/Save.txt", json);
         }
 
+        /// <summary>
+        /// Hakee tiedostosta tallenetut tiedot. Mikäli tallenusta ei löydy, luodaan uusi.
+        /// </summary>
         public void LoadFromFile()
         {
             if (!File.Exists("data/Save.txt"))
@@ -40,7 +41,6 @@ namespace Avaruuspeli
             }
             string json = File.ReadAllText("data/Save.txt");
             save = JsonConvert.DeserializeObject<Save>(json);
-            Console.WriteLine(save.highScore);
         }
 
         public int GetHighScore()

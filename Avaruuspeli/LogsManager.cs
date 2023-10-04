@@ -17,7 +17,12 @@ namespace Avaruuspeli
             textFile = $"Logs/{date}.txt";
         }
 
-
+        /// <summary>
+        /// Tallentaa logitiedostoon reportin tapahtumasta.
+        /// Ei tee Debug tilan ulkopuolella mitään.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="logLevel"></param>
         public void Log(string text, LogLevel logLevel)
         {
 #if DEBUG

@@ -81,7 +81,6 @@ namespace Avaruuspeli
 
 
             File.WriteAllText("data/Options.txt", json);
-            Console.WriteLine(json);
         }
     }
 }

@@ -242,7 +242,6 @@ namespace Avaruuspeli
 
                     case GameState.ScoreScreen:
                         scoreScreen.Draw();
-                        Console.WriteLine(stateStack.Count);
                         break;
 
 #if DEBUG
@@ -306,6 +305,9 @@ namespace Avaruuspeli
         }
 
 
+        /// <summary>
+        /// Kutsutaan pelaajan kuollessa.
+        /// </summary>
         private void Die()
         {
             foreach (Enemy enemy in enemies)
@@ -319,6 +321,12 @@ namespace Avaruuspeli
 
         }
 
+        /// <summary>
+        /// "Resetoi" pelin. Kutsutaan kun halutaan aloittaa peli.
+        /// Metodi palauttaa kaiken ns alkupaikoilleen ja spawnaa viholliset.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ResetGame(Object sender, EventArgs e)
         {
             logsManager.Log("Resetting game", LogsManager.LogLevel.INFO);
@@ -445,6 +453,9 @@ namespace Avaruuspeli
             timer += Raylib.GetFrameTime();
         }
 
+        /// <summary>
+        /// Päivittää pelaajaa. Pitää pelaajan rajojen sisällä sekä ampuu luodin tarvittaessa.
+        /// </summary>
         void UpdatePlayer()
         {
             if (player.Update())
@@ -612,6 +623,10 @@ namespace Avaruuspeli
             }
         }
 
+        /// <summary>
+        /// Metodi joka kutsutaan kun luoti osuu viholliseen. Tappaa vihollisen, nostaa comboa ja antaa pisteet.
+        /// </summary>
+        /// <param name="enemy"></param>
         void KillEnemy(Enemy enemy)
         {
             enemy.active = false;
@@ -665,44 +680,37 @@ namespace Avaruuspeli
         /// <param name="playerBullet">Onko tämä pelaajan (true) vai vihollisen (false) luoti?</param>
         void ShootBullet(TransformComponent transform, CollisionComponent collision, Vector2 dir, float speed, int size, bool playerBullet)
         {
-            // Try catch ehkä hieman turha tässä kohtaa.
-            try
+
+            Texture bulletText;
+            if (playerBullet)
             {
-                Texture bulletText;
-                if (playerBullet)
-                {
-                    bulletText = bulletImage[0];
-                }
-                else
-                {
-                    bulletText = bulletImage[1];
-                }
-
-                foreach (Bullet bullet in bullets)
-                {
-                    if (bullet.active == false)
-                    {
-                        bullet.Reset(transform.position, dir, speed, size, playerBullet);
-                        ResetBulletPos(bullet, transform, collision);
-                        bullet.bulletImage = bulletText;
-                        logsManager.Log("Bullet shot", LogsManager.LogLevel.SUCCESS);
-                        return;
-                    }
-                }
-
-
-
-                Bullet newBullet = new Bullet(transform.position, dir, speed, size, bulletText, playerBullet);
-                ResetBulletPos(newBullet, transform, collision);
-                bullets.Add(newBullet);
-
-                logsManager.Log("Bullet shot", LogsManager.LogLevel.SUCCESS);
+                bulletText = bulletImage[0];
             }
-            catch (Exception)
+            else
             {
-                logsManager.Log("Bullet couldn't be shot", LogsManager.LogLevel.ERROR);
+                bulletText = bulletImage[1];
             }
-            
+
+            foreach (Bullet bullet in bullets)
+            {
+                if (bullet.active == false)
+                {
+                    bullet.Reset(transform.position, dir, speed, size, playerBullet);
+                    ResetBulletPos(bullet, transform, collision);
+                    bullet.bulletImage = bulletText;
+                    logsManager.Log("Bullet shot", LogsManager.LogLevel.SUCCESS);
+                    return;
+                }
+            }
+
+
+
+            Bullet newBullet = new Bullet(transform.position, dir, speed, size, bulletText, playerBullet);
+            ResetBulletPos(newBullet, transform, collision);
+            bullets.Add(newBullet);
+
+            logsManager.Log("Bullet shot", LogsManager.LogLevel.SUCCESS);
+
 
 
 
@@ -804,6 +812,11 @@ namespace Avaruuspeli
             return rec;
         }
 
+        /// <summary>
+        /// Kutsutaan kun peli loppuu.
+        /// Tallentaa mahdollisen highscoren sekä pelaajan statit.
+        /// Työntää State stackiin loppuruudun.
+        /// </summary>
         void EndGame()
         {
 

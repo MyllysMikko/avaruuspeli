@@ -15,6 +15,14 @@ namespace Avaruuspeli
         private float height;
         private float between;
 
+        /// <summary>
+        /// Asettaa mistä kohtaan valikon ominaisuuksia aletaan piirtämään.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="between"></param>
         public void StartMenu(float x, float y, float width, float height, float between)
         {
             this.width = width;
