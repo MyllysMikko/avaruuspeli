@@ -78,6 +78,7 @@ namespace Avaruuspeli
         /// </summary>
         void Init()
         {
+            Raylib.SetTargetFPS(144);
             saveManager.LoadFromFile();
             highScore = saveManager.GetHighScore();
 
